@@ -2,6 +2,6 @@
 /.nextflow/**
 /output/**
 /data/**
-!/data/.gitignore
+!/data/.gitkeep
 *.log*
 __pycache__/
