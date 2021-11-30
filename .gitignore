@@ -1,0 +1,7 @@
+/work/**
+/.nextflow/**
+/output/**
+/data/**
+!/data/.gitignore
+*.log*
+__pycache__/

@@ -1,0 +1,7 @@
+{
+    "rot_ang_str":"np.pi/180*(333.68)",
+    "N_scan_x":50,
+    "N_scan_y":50,
+    "scanStepSize_x":0.2,
+    "scanStepSize_y":0.2
+}
