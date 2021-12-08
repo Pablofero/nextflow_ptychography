@@ -112,7 +112,7 @@ if find_points_ref:
     with mp.Pool(cpu_count) as p:
         # imap(find_disk,ref_imV,ceil(ref_imV.shape[0]/p._processes)) for less memory
         res = p.map(find_disk_ref_im, range(
-            ref_imV.shape[0]), ceil(ref_imV.shape[0]/cpu_count))
+            ref_imV.shape[0]))#, ceil(ref_imV.shape[0]/cpu_count)
     for i, res_iter in zip(range(ref_imV.shape[0]), res):
         coords[i] = [res_iter[0][0], res_iter[0][1]]
         max_vals[i] = res_iter[1]
@@ -144,7 +144,7 @@ if find_points_warp:
     with mp.Pool(cpu_count) as p:
         # imap(find_disk,warp_imV,ceil(warp_imV.shape[0]/p._processes)) for less memory
         res = p.map(find_disk_warp_im, range(
-            warp_imV.shape[0]), ceil(warp_imV.shape[0]/cpu_count))
+            warp_imV.shape[0]))#, ceil(warp_imV.shape[0]/cpu_count)
     for i, res_iter in zip(range(warp_imV.shape[0]), res):
         coords_warp[i] = [res_iter[0][0], res_iter[0][1]]
         max_vals_warp[i] = res_iter[1]

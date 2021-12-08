@@ -116,10 +116,11 @@ def unwarp_im_data(i):
     global dataV #we are modifying a global variable
     data_outV[i] = im_tools.unwarp_im(#################HACK modified to not write dataV ->~10s less for ~10gb
         dataV[i], ab, plot_flag=False)[0]
+print('cpu count:',cpu_count)
 with mp.Pool(cpu_count) as p:
     # imap(find_disk,dataV,ceil(dataV.shape[0]/p._processes)) for less memory
     #-#res = 
-    p.map(unwarp_im_data, range(dataV.shape[0]), ceil(dataV.shape[0]/cpu_count))
+    p.map(unwarp_im_data, range(dataV.shape[0]))#, ceil(dataV.shape[0]/cpu_count)
     #p.map(unwarp_im_data, range(100), ceil(dataV.shape[0]/cpu_count))
     #p.map(unwarp_im_data, range(100), ceil(100/cpu_count))
 

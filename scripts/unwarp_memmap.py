@@ -339,7 +339,7 @@ for f in f_list:
             with mp.Pool(cpu_count) as p:
                 # imap(find_disk,dataV,ceil(dataV.shape[0]/p._processes)) for less memory
                 #-#res = 
-                p.map(unwarp_im_data, range(dataV.shape[0]), ceil(dataV.shape[0]/cpu_count))
+                p.map(unwarp_im_data, range(dataV.shape[0]))#, ceil(dataV.shape[0]/cpu_count)
                 #p.map(unwarp_im_data, range(100), ceil(dataV.shape[0]/cpu_count))
                 #p.map(unwarp_im_data, range(100), ceil(100/cpu_count))
             
