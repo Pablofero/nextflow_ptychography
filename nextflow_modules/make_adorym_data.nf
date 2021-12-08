@@ -11,13 +11,14 @@ params.confFile = 'make_adorym_data.json'
 // //log.info "Some val: ${myConfig.out_name_append}"// access values in the dict
 
 process make_adorym_data {
-                publishDir "$params.output/${file_.getName().replaceAll(/.npy/,"")}/adorym_data", mode: 'copy'
+        publishDir "$params.output/${file_.getName().replaceAll(/.npy/,"")}/adorym_data", mode: 'copy'
         input:
             path file_
         output:
             // log.info file("${file(file_).getSimpleName()}*.h5")
             path "*.h5" 
             path "*_beamstop.npy"
+            path "*.png" optional true
             // path "${file_.getName().replaceAll(/.npy/,"")}*.h5" 
             // path "${file_.getName().replaceAll(/.npy/,"")}*_beamstop.npy"
             //"${file_.getName().replaceAll(/.npy/, myConfig.out_name_append +'.h5')}" //normaly: "${file(file_).getSimpleName()}_unwarped.h5". but the other works with files with two or more dots ('.')

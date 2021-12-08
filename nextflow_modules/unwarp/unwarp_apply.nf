@@ -13,6 +13,7 @@ process unwarp_apply {
         output:
             path "*_unwarped.npy" 
             path "*_unwarped_json.npy" optional true
+            path "*.png" optional true 
         script:
             """
             /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/scripts/unwarp/unwarp_apply.py --cfg $projectDir/conf/$params.confFile --file $file_ --ab $ab_distorsion_matrix --cpu_count=$task.cpus

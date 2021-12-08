@@ -1,15 +1,15 @@
 {
-    "stem_data": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preporcessing/data",
-    "stem_results": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preporcessing/dewarping_results/100mrad_pelz",
-    "f_ref": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preporcessing/data/Spectrum Image (RonchiCam)_100mrad_pelz_tiltmap-002.npy",
-    "f_warp": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preporcessing/data/Spectrum Image (Dectris)_100mrad_pelz_tiltmap.npy",
+    "stem_data": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data",
+    "stem_results": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/dewarping_results/100mrad_pelz",
+    "f_ref": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (RonchiCam)_100mrad_pelz_tiltmap-002.npy",
+    "f_warp": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (Dectris)_100mrad_pelz_tiltmap.npy",
     "f_list": [
-        "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preporcessing/data/Spectrum Image (Dectris)_100mrad_pelz_unfiltered_21.25pm.npy"
+        "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (Dectris)_100mrad_pelz_unfiltered_21.25pm.npy"
     ],
     "find_points_ref": true,
     "find_points_warp": true,
     "dist_min": 20,
-    "f_json": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preporcessing/data/Spectrum Image (Dectris)_100mrad_pelz_tiltmap.json",
+    "f_json": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (Dectris)_100mrad_pelz_tiltmap.json",
     "save_all":true,
     "load_data":true,
     "process_data":true,
