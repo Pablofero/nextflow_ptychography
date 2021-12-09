@@ -11,7 +11,7 @@ process unwarp_apply {
             path file_
             path ab_distorsion_matrix
         output:
-            path "*_unwarped.npy" 
+            path "*_unwarped.npy", emit: unwarped
             path "*_unwarped_json.npy" optional true
             path "*.png" optional true 
         script:
