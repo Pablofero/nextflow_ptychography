@@ -21,7 +21,8 @@ Path_f_nocheck =  path_type('frw', docstring='str pointing to a file', skip_chec
 
 parser = ArgumentParser(parse_as_dict=True)
 parser.add_argument('--cfg', action=ActionConfigFile)
-parser.add_argument("--Dimension", type=int, help="", default=256)
+parser.add_argument("--Dimension_r", type=int, help="", default=256)
+parser.add_argument("--Dimension_c", type=int, help="", default=256)
 parser.add_argument("--binFactor", type=int, help="", default=4)
 parser.add_argument("--ScanPos_str", type=str, help="evaluates the string, use with care!", default=75**2)
 parser.add_argument("--Path2Unwarped", type=Path_f_nocheck)
@@ -29,15 +30,16 @@ parser.add_argument("--out_name_append", type=str, help='start with "_"!, parame
 params = parser.parse_args()
 
 
-Dimension = params['Dimension']
+Dimension_r = params['Dimension_r']
+Dimension_c = params['Dimension_c']
 binFactor = params['binFactor']
 ScanPos = eval(params['ScanPos_str']);ScanPos_str = params['ScanPos_str'].replace('/','⁄')
-size=Dimension*Dimension*ScanPos
+size=Dimension_r*Dimension_c*ScanPos
 path = Path(str(params['Path2Unwarped']));path.is_file()
 out_name_append = params['out_name_append']
 if out_name_append[0] != '_':
     raise ValueError('out_name_append must start with "_" but out_name_append is:"'+str(out_name_append)+'"')
-out_name_append+='_Dim'+str(Dimension)
+out_name_append+='_Dim'+str(Dimension_r)+str(Dimension_c)
 out_name_append+='_Bin'+str(binFactor)
 out_name_append+='_ScanPos'+ScanPos_str
 out_name_append+='_size'+str(size)
@@ -50,13 +52,13 @@ values = np.load(path, 'r')
 #print(f'{str(path)=},{values.shape=}')
 values = values[125:200,50:125,:,:]
 values = np.transpose(values, (0,1,2,3))
-values =  np.reshape(values,(1,ScanPos,Dimension,Dimension))
+values =  np.reshape(values,(1,ScanPos,Dimension_r,Dimension_c))
 # values *= 214183.488
 
 
 _, shifts = im_tools.shift_im_com(im_tools.bin_image(np.mean(values, axis=(0,1)), binFactor), thresh=1)
 
-values_new = np.zeros((1, ScanPos, int(Dimension/binFactor), int(Dimension/binFactor)))
+values_new = np.zeros((1, ScanPos, int(Dimension_r/binFactor), int(Dimension_c/binFactor)))
 print('shifting data')
 for i in range(values.shape[1]):#tqdm was here
         values_new[0,i,:,:] = spim.shift(im_tools.bin_image(values[0,i,:,:], binFactor), shifts, order=1)[::-1,::-1] #rotate by 180 degrees? # TODO
