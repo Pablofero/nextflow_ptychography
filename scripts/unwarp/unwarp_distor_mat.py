@@ -203,4 +203,4 @@ if plot_flag:
 
 # maybe still need to fix gain? using original image?  i don't think so...
 
-np.save('ab_distorsion_matrix.npy',ab)
+np.save('ab_distortion_matrix.npy',ab)

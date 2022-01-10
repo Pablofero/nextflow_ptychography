@@ -37,7 +37,7 @@ parser.add_argument('--cfg', action=ActionConfigFile)
 parser.add_argument("--cpu_count", type=int, help="amount of cores to be used", required=True)
 # more about how to use: https://jsonargparse.readthedocs.io/en/stable/#parsing-paths
 parser.add_argument("--file", type=Path_f_nocheck, help="raw data stack path - 4D numpy files extracted from Swift", required=True)
-parser.add_argument("--ab", type=Path_f_nocheck, help="ab distorsion matrix")
+parser.add_argument("--ab", type=Path_f_nocheck, help="ab distortion matrix")
 parser.add_argument("--use_json", type=bool, help="this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp", default=False)
 #TODO flag for plotting
 
