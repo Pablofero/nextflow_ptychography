@@ -2,11 +2,11 @@
 nextflow.enable.dsl=2
 
 params.confFile = 'unwarp_apply.json'
-params.output = "output"
+params.outputfolder = "output"
 
 process unwarp_apply {
         label 'all_cpu'
-        publishDir "$params.output/${file_.getName().replaceAll(/.npy/,'_unwarped')}/unwarped", mode: 'copy'
+        publishDir "$params.outputfolder/${file_.getName().replaceAll(/.npy/,'_unwarped')}/unwarped", mode: 'copy'
         input:
             path file_
             path ab_distorsion_matrix

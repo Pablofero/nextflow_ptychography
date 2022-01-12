@@ -2,11 +2,11 @@
 nextflow.enable.dsl=2
 
 params.confFile = 'unwarp_distor_mat.json'
-params.output = "output"
+params.outputfolder = "output"
 
 process unwarp_distor_mat {
         label 'all_cpu'
-        publishDir params.output+"/unwarp_distor_mat/", mode: 'copy'
+        publishDir params.outputfolder+"/unwarp_distor_mat/", mode: 'copy'
         output:
             path "ab_distorsion_matrix.npy", emit: ab_mat // unwarp_distor_mat.out.ab_mat to acces this output chanel
             path "*.txt" optional true //if save_all_precompute is true, then *.txt are created

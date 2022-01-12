@@ -11,7 +11,7 @@ params.confFile = 'make_adorym_data.json'
 // //log.info "Some val: ${myConfig.out_name_append}"// access values in the dict
 
 process make_adorym_data {
-        publishDir "$params.output/${file_.getName().replaceAll(/.npy/,"")}/adorym_data", mode: 'copy'
+        publishDir "$params.outputfolder/${file_.getName().replaceAll(/.npy/,"")}/adorym_data", mode: 'copy'
         input:
             path file_
         output:

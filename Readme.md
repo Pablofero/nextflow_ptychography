@@ -2,10 +2,10 @@
 ___
 ### To run:
 ```
-nextflow main.nf -resume -name run1
+nextflow main.nf -resume -name run1 --outputfolder output1
 ```
 The resume option uses cached results (to mark as dirty, modify the corresponding .nf).
-The ```main.nf``` workflow saves it's outputs to a folder called ```output``` by default.
+The ```main.nf``` workflow saves it's outputs to a folder called ```output``` 
 
 Nextflow [Documentation](https://www.nextflow.io/docs/latest/) and [Patterns](https://nextflow-io.github.io/patterns/index.html) (not in DSL 2, but still valuable)
 ___

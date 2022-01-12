@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 //paramteres
-params.output = "output"
+params.outputfolder = "output"
 
 //import modules
 // include {unwarp_memmap as unwarp} from "./nextflow_modules/unwarp_single.nf" addParams(confFile: "unwarp.json")

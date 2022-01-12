@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 params.confFile = 'make_adorym_positions.json'
 
 process make_adorym_positions {
-        publishDir "$params.output/adorym_positions"
+        publishDir "$params.outputfolder/adorym_positions"
         output:
             path "*.npy"
         script:

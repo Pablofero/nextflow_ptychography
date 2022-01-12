@@ -1,6 +1,6 @@
 /work/**
 /.nextflow/**
-/output/**
+/output*/**
 /data/**
 !/data/.gitkeep
 *.log*

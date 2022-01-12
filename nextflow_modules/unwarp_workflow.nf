@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 params.confFile_Distor_mat = 'unwarp_distor_mat.json'
-params.output = "output"
+params.outputfolder = "output"
 //import modules after
 include {unwarp_distor_mat as distor_mat} from "./unwarp/unwarp_distor_mat.nf" 
 include {unwarp_apply} from "./unwarp/unwarp_apply.nf"  addParams(confFile: "unwarp_apply.json")
