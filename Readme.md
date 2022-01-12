@@ -5,7 +5,7 @@ ___
 nextflow main.nf -resume -name run1 --outputfolder output1
 ```
 The resume option uses cached results (to mark as dirty, modify the corresponding .nf).
-The ```main.nf``` workflow saves it's outputs to a folder called ```output``` 
+The ```main.nf``` workflow saves it's outputs to a folder called ```output1``` 
 
 Nextflow [Documentation](https://www.nextflow.io/docs/latest/) and [Patterns](https://nextflow-io.github.io/patterns/index.html) (not in DSL 2, but still valuable)
 ___
