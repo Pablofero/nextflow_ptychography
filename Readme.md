@@ -28,10 +28,10 @@ ___
 * Clean up outputs - everything should go into either output folder or dewarping_results. 
 * Rearrange outputs - ideally the folder structure should look like
         
-        ```├─ experiment/ - top level directory with data
-                ├─ exports/ - top level directory with raw data
-                ├─ outputs/ - outputs from nextflow (all of them)
-                ├─ nextflow/ - everything that is only nextflow related - no data```
+        ├─ experiment/ - top level directory with data
+             ├─ exports/ - top level directory with raw data
+             ├─ outputs/ - outputs from nextflow (all of them)
+             ├─ nextflow/ - everything that is only nextflow related - no data
 
 * Parameter file(s) - can we use YAML for comments? 
 * Does it make sense to have one parameter file instead of many? Maybe nested for 1 workflow?
