@@ -93,7 +93,7 @@ print(data.shape)
 # data = np.pad(
 #     data, pad_size
 # )  # this is perhaps unnecessary now that my padding function can handle 2D images. This step takes a lot of memory
-# data_mean = np.mean(data, axis=(0, 1)) #HACK this is not used?!
+data_mean = np.mean(data, axis=(0, 1))
 
 print('reserving shared memory')
 dataV = data.view()
@@ -139,8 +139,10 @@ data_unwarp_mean = np.mean(data_out, axis=(0, 1))
 print("done")
 #-# data_unwarp_mean = np.mean(data, axis=(0, 1))
 
-plt.figure(34, clear=True)
-plt.imshow(data_unwarp_mean ** 0.25)
+plt.imsave(file.parent / "warped_mean.png", data_mean**.25)
+plt.imsave(file.parent / "unwarped_mean.png", data_unwarp_mean**.25)
+#plt.figure(34, clear=True)
+#plt.imshow(data_unwarp_mean ** 0.25)
 
 #data_out.flush()
 f_out = file.parent / (file.stem + "_unwarped.npy")

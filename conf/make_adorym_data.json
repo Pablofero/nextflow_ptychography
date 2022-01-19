@@ -1,7 +1,8 @@
 {
-    "Dimension":256,
-    "binFactor":4,
-    "ScanPos_str":"75**2",
+    "Dimension_r":207,
+    "Dimension_c":212,
+    "binFactor":1,
+    "ScanPos_str":"260**2",
     "Path2Unwarped":"",
     "out_name_append":"_adorym_original_shifted_rotated180"
 }

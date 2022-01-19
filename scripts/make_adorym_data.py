@@ -50,7 +50,7 @@ print('out_name_append=',out_name_append)
 # values = struct.unpack(size*'f', f)
 values = np.load(path, 'r')
 #print(f'{str(path)=},{values.shape=}')
-values = values[125:200,50:125,:,:]
+#values = values[125:200,50:125,:,:]
 values = np.transpose(values, (0,1,2,3))
 values =  np.reshape(values,(1,ScanPos,Dimension_r,Dimension_c))
 # values *= 214183.488
