@@ -77,8 +77,8 @@ with h5py.File(fname,'w') as data_file:
 fnameb = path.parent/(path.stem+out_name_append+'_beamstop.npy')#TODO
 np.save(fnameb, np.mean(values_new, axis=(0,1))>.01)
 
-plt.figure(83, clear=True)
-plt.imshow(np.mean(values_new, axis=(0,1))>.01)
+# plt.figure(83, clear=True)
+plt.imsave(path.parent/(path.stem+out_name_append+'_beamstop.png'), np.mean(values_new, axis=(0,1))>.01)
 #plt.show(block=True)
 
 # # 333.68

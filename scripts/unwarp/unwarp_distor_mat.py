@@ -170,6 +170,7 @@ for i in range(len(inds) - 1):
 # look at the histogram to figure out the correct number
 if plot_dist_min_flag:
     plt.hist(dist[inds], 100)
+    plt.savefig(stem_results / 'distance_histogram.png')
 inds[dist < dist_min] = False
 # inds[dist>1000] = False
 

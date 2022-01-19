@@ -54,6 +54,7 @@ from matplotlib import pyplot as plt
 plt.scatter(A,B)
 plt.xlim(-10**(-9),10**(-9))
 plt.ylim(-10**(-9),10**(-9))
+plt.savefig('beam_pos.png')
 #plt.show()
 
 
