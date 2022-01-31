@@ -3,7 +3,7 @@
     "crop_r_after": 7,
     "crop_c_before": 12,
     "crop_c_after": 0,
-    "rotate_180": true,
+    "rotate_180": false,
     "binFactor":1,
     "ScanPos_str":"260**2",
     "Path2Unwarped":"",

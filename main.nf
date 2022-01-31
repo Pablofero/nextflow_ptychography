@@ -13,7 +13,7 @@ include {make_adorym_positions} from "./nextflow_modules/make_adorym_positions.n
 
 
 workflow {
-    data = channel.fromPath('/testpool/ops/tompekin/temp_gdrive_download/2021-01-14_S-Matrix_200kV_10nm_AuNPs/exports/dp_stack_def*.npy')
+    data = channel.fromPath('/testpool/ops/tompekin/au_np/2021-01-14_S-Matrix_200kV_10nm_AuNPs/exports/dp_stack_def*.npy')
     unwarp(data) | make_adorym_data
     make_adorym_positions()
     // println("\n\nview:\n")
