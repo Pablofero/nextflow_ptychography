@@ -5,3 +5,5 @@
 !/data/.gitkeep
 *.log*
 __pycache__/
+*.swp
+*DS_Store*

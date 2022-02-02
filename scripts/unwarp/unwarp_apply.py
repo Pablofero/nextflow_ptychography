@@ -37,7 +37,7 @@ parser.add_argument('--cfg', action=ActionConfigFile)
 parser.add_argument("--cpu_count", type=int, help="amount of cores to be used", required=True)
 # more about how to use: https://jsonargparse.readthedocs.io/en/stable/#parsing-paths
 parser.add_argument("--file", type=Path_f_nocheck, help="raw data stack path - 4D numpy files extracted from Swift", required=True)
-parser.add_argument("--ab", type=Path_f_nocheck, help="ab distorsion matrix")
+parser.add_argument("--ab", type=Path_f_nocheck, help="ab distortion matrix")
 parser.add_argument("--use_json", type=bool, help="this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp", default=False)
 #TODO flag for plotting
 
@@ -93,7 +93,7 @@ print(data.shape)
 # data = np.pad(
 #     data, pad_size
 # )  # this is perhaps unnecessary now that my padding function can handle 2D images. This step takes a lot of memory
-# data_mean = np.mean(data, axis=(0, 1)) #HACK this is not used?!
+data_mean = np.mean(data, axis=(0, 1))
 
 print('reserving shared memory')
 dataV = data.view()
@@ -139,8 +139,10 @@ data_unwarp_mean = np.mean(data_out, axis=(0, 1))
 print("done")
 #-# data_unwarp_mean = np.mean(data, axis=(0, 1))
 
-plt.figure(34, clear=True)
-plt.imshow(data_unwarp_mean ** 0.25)
+plt.imsave(file.parent / "warped_mean.png", data_mean**.25)
+plt.imsave(file.parent / "unwarped_mean.png", data_unwarp_mean**.25)
+#plt.figure(34, clear=True)
+#plt.imshow(data_unwarp_mean ** 0.25)
 
 #data_out.flush()
 f_out = file.parent / (file.stem + "_unwarped.npy")

@@ -8,7 +8,7 @@ process unwarp_distor_mat {
         label 'all_cpu'
         publishDir params.outputfolder+"/unwarp_distor_mat/", mode: 'copy'
         output:
-            path "ab_distorsion_matrix.npy", emit: ab_mat // unwarp_distor_mat.out.ab_mat to acces this output chanel
+            path "ab_distortion_matrix.npy", emit: ab_mat // unwarp_distor_mat.out.ab_mat to acces this output chanel
             path "*.txt" optional true //if save_all_precompute is true, then *.txt are created
             path "*.png" optional true
         script:

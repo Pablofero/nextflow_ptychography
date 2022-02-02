@@ -170,12 +170,13 @@ for i in range(len(inds) - 1):
 # look at the histogram to figure out the correct number
 if plot_dist_min_flag:
     plt.hist(dist[inds], 100)
+    plt.savefig(stem_results / 'distance_histogram.png')
 inds[dist < dist_min] = False
 # inds[dist>1000] = False
 
 # save values from finding disks as text files
 if(save_all_precompute):
-    os.makedirs(stem_results)#, exist_ok=True
+    os.makedirs(stem_results, exist_ok=True)
     np.savetxt(stem_results / "coords.txt", coords)
     np.savetxt(stem_results / "max_vals.txt", max_vals)
     np.savetxt(stem_results / "coords_warp.txt", coords_warp)####################################################################################
@@ -197,10 +198,10 @@ if use_json:
                           np.mean(y[inds]), coords_warp[inds, 0], coords_warp[inds, 1])
 
 # this command unwarps the image
-im_tools.unwarp_im(warp_avg, ab, plot_flag=plot_flag)
-if plot_flag:
-    plt.pause(5)  # HACK it was plt.pause(0.01), it disapears in my machine
+unwarped_test = im_tools.unwarp_im(warp_avg, ab, plot_flag=plot_flag)[0]
+plt.imsave(stem_results / "warped_test.png", warp_avg)
+plt.imsave(stem_results / "unwarped_test.png", unwarped_test)
 
 # maybe still need to fix gain? using original image?  i don't think so...
 
-np.save('ab_distorsion_matrix.npy',ab)
+np.save('ab_distortion_matrix.npy',ab)
