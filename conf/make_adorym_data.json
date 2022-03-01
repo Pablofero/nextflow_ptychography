@@ -1,11 +1,11 @@
 {
     "crop_r_before": 0,
-    "crop_r_after": 7,
-    "crop_c_before": 12,
+    "crop_r_after": 0,
+    "crop_c_before": 0,
     "crop_c_after": 0,
     "rotate_180": false,
     "binFactor":1,
-    "ScanPos_str":"260**2",
+    "ScanPos_str":"200**2",
     "Path2Unwarped":"",
-    "out_name_append":"_adorym_original_shifted"
+    "out_name_append":"_adorym_original_shifted_rotated180"
 }

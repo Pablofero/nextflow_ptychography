@@ -1,12 +1,12 @@
 {
     "cpu_count":4,
-    "stem_data": "/testpool/ops/tompekin/au_np/2021-01-14_S-Matrix_200kV_10nm_AuNPs/exports",
-    "stem_results": "/testpool/ops/tompekin/au_np/2021-01-14_S-Matrix_200kV_10nm_AuNPs/nextflow_preprocessing/dewarping_results/100mrad_pelz",
-    "f_ref": "/testpool/ops/tompekin/au_np/2021-01-14_S-Matrix_200kV_10nm_AuNPs/exports/ronchi_unwarp.npy",
-    "f_warp": "/testpool/ops/tompekin/au_np/2021-01-14_S-Matrix_200kV_10nm_AuNPs/exports/dectris_unwarp.npy",
+    "stem_data": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data",
+    "stem_results": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/dewarping_results/100mrad_pelz",
+    "f_ref": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (RonchiCam)_100mrad_pelz_tiltmap-002.npy",
+    "f_warp": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (Dectris)_100mrad_pelz_tiltmap.npy",
     "find_points_ref": true,
     "find_points_warp": true,
     "dist_min": 20,
-    "f_json": "/testpool/ops/tompekin/au_np/2021-01-14_S-Matrix_200kV_10nm_AuNPs/exports/dectris_unwarp.json",
+    "f_json": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (Dectris)_100mrad_pelz_tiltmap.json",
     "save_all_precompute":true
 }

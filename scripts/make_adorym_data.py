@@ -28,8 +28,7 @@ parser.add_argument("--out_name_append", type=str, help='start with "_"!, parame
 params = parser.parse_args()
 
 path = Path(str(params['Path2Unwarped']));path.is_file()
-values = np.load(path, 'r') # has shape [probe_pos_x, probe_pos_y, dimension_r, Dimension_c]
-
+values = np.load(path, 'r') # has shape [probe_pos_x, probe_pos_y, dimension_r, dimension_c]
 #values = values[125:200,50:125,:,:] # TODO implement crop in realspace 
 crop_inds = [params['crop_r_before'], params['crop_r_after'], params['crop_c_before'], params['crop_c_after']]
 crop_inds = np.asarray(crop_inds)
