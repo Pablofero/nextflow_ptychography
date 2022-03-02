@@ -19,7 +19,8 @@ ___
 ├─ scripts/ - scripts - the code that is called
 ├─ work/ - (autogen.) nextflow's cache, you can look here to get valuable information on how your script run (the 'random' characters)
 ├─ main.nf - main nextflow workflow
-├─ nextflow.config - nextflow execution configurations (how many CPUs/RAM, SLURM, etc.)```
+├─ nextflow.config - nextflow execution configurations (how many CPUs/RAM, SLURM, etc.)
+```
 
 ### Todo
 * Rearrange outputs - ideally the folder structure should look like
