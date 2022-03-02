@@ -9,8 +9,8 @@ parser = ArgumentParser(parse_as_dict=True)
 parser.add_argument('--cfg', action=ActionConfigFile)
 parser.add_argument("--N_scan_x", type=int, help="", default=50)
 parser.add_argument("--N_scan_y", type=int, help="", default=50)
-parser.add_argument("--scanStepSize_x", type=float, help="", default=.2)
-parser.add_argument("--scanStepSize_y", type=float, help="", default=.2)
+parser.add_argument("--scan_Step_Size_x", type=float, help="", default=.2)
+parser.add_argument("--scan_Step_Size_y", type=float, help="", default=.2)
 parser.add_argument("--rot_ang_str", type=str, help="evaluates the string, use with care!", default="np.pi/180*(333.68)")
 params = parser.parse_args()
 
@@ -18,8 +18,8 @@ params = parser.parse_args()
 
 N_scan_x=params['N_scan_x']
 N_scan_y=params['N_scan_y']
-scanStepSize_x=params['scanStepSize_x']
-scanStepSize_y=params['scanStepSize_y']
+scanStepSize_x=params['scan_Step_Size_x']
+scanStepSize_y=params['scan_Step_Size_y']
 rot_ang = eval(params['rot_ang_str']);rot_ang_str = params['rot_ang_str'].replace('/','⁄')
 
 

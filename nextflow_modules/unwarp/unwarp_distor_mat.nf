@@ -1,8 +1,10 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-params.confFile = 'unwarp_distor_mat.json'
-params.outputfolder = "output"
+include { toArgs1 } from "../tools/toArgs1.nf"
+moduleParams= new nextflow.script.ScriptBinding$ParamsMap(params.unwarp.unwarp_distor_mat)
+// argParams = new nextflow.script.ScriptBinding$ParamsMap(moduleParams.argParams)
+expandedParameters = toArgs1(moduleParams)
 
 process unwarp_distor_mat {
         label 'all_cpu'
@@ -13,6 +15,6 @@ process unwarp_distor_mat {
             path "*.png" optional true
         script:
             """
-            /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/scripts/unwarp/unwarp_distor_mat.py --cfg $projectDir/conf/$params.confFile --cpu_count=$task.cpus
+            /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/scripts/unwarp/unwarp_distor_mat.py $expandedParameters --cpu_count=$task.cpus
             """
     }

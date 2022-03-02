@@ -30,8 +30,6 @@ ___
              ├─ outputs/ - outputs from nextflow (all of them)
              ├─ nextflow/ - everything that is only nextflow related - no data
 
-* Parameter file(s) - can we use YAML for comments? 
-* Does it make sense to have one parameter file instead of many? Maybe nested for 1 workflow?
 * Remove hardcoded parameters in the scripts file out to a parameter file. More generally, clean up scripts. All parameters should be in parameter file, and not in `.py` scripts. 
 * Turn all `plt.imshow` or `plt.plot` calls into `plt.imsave` or `plt.savefig` files after drawing plot - keep all intermediate output that is small pngs. Is much cheaper to have these once they've been computed than investigating a 25 GB file. 
 * Clean up readme/repository information - make it more comprehensive.

@@ -1,7 +1,10 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-params.confFile = 'make_adorym_data.json'
+include { toArgs1 } from "./tools/toArgs1.nf"
+moduleParams= new nextflow.script.ScriptBinding$ParamsMap(params.make_adorym_data)
+// argParams = new nextflow.script.ScriptBinding$ParamsMap(moduleParams.argParams)
+expandedParameters = toArgs1(moduleParams)
 
 process make_adorym_data {
         publishDir "$params.outputfolder/${file_.getName().replaceAll(/.npy/,"")}/adorym_data", mode: 'copy'
@@ -13,6 +16,6 @@ process make_adorym_data {
             path "*.png" optional true
         script:
             """
-            /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/scripts/make_adorym_data.py --cfg $projectDir/conf/$params.confFile --Path2Unwarped $file_
+            /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/scripts/make_adorym_data.py $expandedParameters --Path_2_Unwarped $file_
             """
     }

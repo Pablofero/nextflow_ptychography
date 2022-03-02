@@ -1,27 +1,22 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-//paramteres
+//cmd: nextflow main.nf -params-file  config.yaml
+
+//default parameters
 params.outputfolder = "output"
 
 //import modules
-// include {unwarp_memmap as unwarp} from "./nextflow_modules/unwarp_single.nf" addParams(confFile: "unwarp.json")
-include {unwarp} from "./nextflow_modules/unwarp_workflow.nf" addParams(confFile_Distor_mat: "unwarp_distor_mat.json")
-include {make_adorym_data} from "./nextflow_modules/make_adorym_data.nf" addParams(confFile: "make_adorym_data.json")
-include {make_adorym_positions} from "./nextflow_modules/make_adorym_positions.nf" addParams(confFile: "make_adorym_positions.json")
-
-
+include {unwarp} from "./nextflow_modules/unwarp_workflow.nf"
+include {make_adorym_data} from "./nextflow_modules/make_adorym_data.nf"
+include {make_adorym_positions} from "./nextflow_modules/make_adorym_positions.nf"
 
 workflow {
     data = channel.fromPath('/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (Dectris)_100mrad_pelz_unfiltered_*.npy')
     unwarp(data) | make_adorym_data
     make_adorym_positions()
-    // println("\n\nview:\n")
-    // make_adorym_data_out.view()
 }
 
-// usefull: http://nextflow-io.github.io/patterns/index.html
 
-/*notes:
-using collect to processes that need all data at once.
-*/
+
+// useful: http://nextflow-io.github.io/patterns/index.html

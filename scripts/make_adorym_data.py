@@ -16,18 +16,18 @@ Path_f_nocheck =  path_type('frw', docstring='str pointing to a file', skip_chec
 
 parser = ArgumentParser(parse_as_dict=True)
 parser.add_argument('--cfg', action=ActionConfigFile)
-parser.add_argument("--binFactor", type=int, help="", default=4)
+parser.add_argument("--bin_Factor", type=int, help="", default=4)
 parser.add_argument("--crop_r_before", type=int, help="number of first rows to crop from the diffraction pattern. Negative pads with edge values", default=0)
 parser.add_argument("--crop_c_before", type=int, help="number of first columns to crop from the diffraction patterns.  Negative pads with edge values", default=0)
 parser.add_argument("--crop_r_after", type=int, help="number of last rows to crop from the diffraction pattern. Negative pads with edge values", default=0)
 parser.add_argument("--crop_c_after", type=int, help="number of last columns to crop from the diffraction pattern. Negative pads with edge values", default=0)
-parser.add_argument("--ScanPos_str", type=str, help="evaluates the string, use with care!", default=75**2)
-parser.add_argument("--Path2Unwarped", type=Path_f_nocheck)
+parser.add_argument("--Scan_Pos_str", type=str, help="evaluates the string, use with care!", default=75**2)
+parser.add_argument("--Path_2_Unwarped", type=Path_f_nocheck)
 parser.add_argument("--rotate_180", type=bool, help="Rotate patterns 180 degrees", default=False)
 parser.add_argument("--out_name_append", type=str, help='start with "_"!, parameters will be the autoappended',default='_adorym_original')#og: _adorym_original_reduced75x75_shifted_bin4_rotated180 # TODO
 params = parser.parse_args()
 
-path = Path(str(params['Path2Unwarped']));path.is_file()
+path = Path(str(params['Path_2_Unwarped']));path.is_file()
 values = np.load(path, 'r') # has shape [probe_pos_x, probe_pos_y, dimension_r, dimension_c]
 #values = values[125:200,50:125,:,:] # TODO implement crop in realspace 
 crop_inds = [params['crop_r_before'], params['crop_r_after'], params['crop_c_before'], params['crop_c_after']]
@@ -45,8 +45,8 @@ elif np.all(crop_inds>=0):
 else:
     raise ValueError('Padding and cropping at the same time is not allowed... yet. Please change crop_ parameters such that they are all positive or negative, not mixed.')
 
-binFactor = params['binFactor']
-ScanPos = eval(params['ScanPos_str']);ScanPos_str = params['ScanPos_str'].replace('/','⁄')
+binFactor = params['bin_Factor']
+ScanPos = eval(params['Scan_Pos_str']);ScanPos_str = params['Scan_Pos_str'].replace('/','⁄')
 size=values.shape[2]*values.shape[3]*ScanPos
 out_name_append = params['out_name_append']
 if out_name_append[0] != '_':

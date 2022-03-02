@@ -1,0 +1,96 @@
+outputfolder: "output"
+unwarp:
+  unwarp_distor_mat:
+    # root folders where all the files are (required, type: Path_dw)
+    stem_data: "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data"
+
+    # tilt tableau datasets, ronchicam, 4D stack (required, type: Path_fr)
+    f_ref: "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (RonchiCam)_100mrad_pelz_tiltmap-002.npy"
+
+    # tilt tableau datasets, dectris, 4D stack (required, type: Path_fr)
+    f_warp: "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (Dectris)_100mrad_pelz_tiltmap.npy"
+
+    # if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line (type: bool, default: True)
+    find_points_ref: true
+
+    # if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line (type: bool, default: True)
+    find_points_warp: true
+
+    # how far apart (in pixels) do the detected disks in the ronchigram stack need to be, to be considered a valid disk (type: int, default: 20)
+    dist_min: 20
+
+    # look at the histogram to figure out the correct number (type: bool, default: False)
+    plot_dist_min_flag: false
+
+    # this is slow, so return to false once the parameters above and below are found. (type: bool, default: False)
+    plot_flag: false
+
+    # the radius used in im_tools.mask_circ. 15 good for 100mrad_pelz, 30 good for DiffRef (type: int, default: 15)
+    radius_ref: 15
+
+    # the radius used in im_tools.mask_circ (type: int, default: 20)
+    radius_warp: 20
+
+    # threshhold value for im_tools.com_im (type: int, default: 45)
+    thresh_ref: 45
+
+    # threshhold value for im_tools.com_im (type: int, default: 4)
+    thresh_warp: 4
+
+    # this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp (type: bool, default: False)
+    use_json: false
+
+    # raw data stack path - 4D numpy files extracted from Swift (type: Path_frw_skip_check, default: null)
+    f_json: /testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum
+      Image (Dectris)_100mrad_pelz_tiltmap.json
+
+    # save dewarping parameters once all are successfully found as text files in the folder (type: bool, default: False)
+    save_all_precompute: true
+
+  unwarp_apply:
+    # this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp (type: bool, default: False)
+    use_json: false
+
+
+make_adorym_data:
+  #  (type: int, default: 4)
+  bin_Factor: 1
+
+  # number of first rows to crop from the diffraction pattern. Negative pads with edge values (type: int, default: 0)
+  crop_r_before: 0
+
+  # number of first columns to crop from the diffraction patterns.  Negative pads with edge values (type: int, default: 0)
+  crop_c_before: 0
+
+  # number of last rows to crop from the diffraction pattern. Negative pads with edge values (type: int, default: 0)
+  crop_r_after: 0
+
+  # number of last columns to crop from the diffraction pattern. Negative pads with edge values (type: int, default: 0)
+  crop_c_after: 0
+
+  # evaluates the string, use with care! (type: str, default: 5625)
+  Scan_Pos_str: "200**2" #TODO convert to list
+
+  # Rotate patterns 180 degrees (type: bool, default: False)
+  rotate_180: true
+
+  # start with "_"!, parameters will be the autoappended (type: str, default: _adorym_original)
+  out_name_append: "_adorym_original_shifted_rotated180"
+
+
+
+make_adorym_positions:
+  #  (type: int, default: 50)
+  N_scan_x: 50
+
+  #  (type: int, default: 50)
+  N_scan_y: 50
+
+  #  (type: float, default: 0.2)
+  scan_Step_Size_x: 0.2
+
+  #  (type: float, default: 0.2)
+  scan_Step_Size_y: 0.2
+
+  # evaluates the string, use with care! (type: str, default: np.pi/180*(333.68))
+  rot_ang_str: "np.pi/180*(333.68)" #TODO angle as input
