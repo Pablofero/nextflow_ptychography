@@ -19,13 +19,9 @@ ___
 ├─ scripts/ - scripts - the code that is called
 ├─ work/ - (autogen.) nextflow's cache, you can look here to get valuable information on how your script run (the 'random' characters)
 ├─ main.nf - main nextflow workflow
-├─ nextflow.config - nextflow execution configurations (how many CPUs/RAM, SLURM, etc.)
-├─ dewarping_results/ - generated directory where some outputs are put
-```
+├─ nextflow.config - nextflow execution configurations (how many CPUs/RAM, SLURM, etc.)```
 
 ### Todo
-
-* Clean up outputs - everything should go into either output folder or dewarping_results. 
 * Rearrange outputs - ideally the folder structure should look like
         
         ├─ experiment/ - top level directory with data

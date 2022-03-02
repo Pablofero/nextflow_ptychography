@@ -52,7 +52,7 @@ parser.add_argument("--thresh_warp", type=int, help="threshhold value for im_too
 parser.add_argument("--use_json", type=bool, help="this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp", default=False)
 parser.add_argument("--f_json", type=Path_f_nocheck, help="raw data stack path - 4D numpy files extracted from Swift", required=False)
 parser.add_argument("--save_all_precompute", type=bool, help="save dewarping parameters once all are successfully found as text files in the folder", default=False)
-parser.add_argument("--stem_results", type=Path_nocheck, help="folders where all precomputed results for the ab matrix is stored, see --save_all_precompute", required=False)
+# parser.add_argument("--stem_results", type=Path_nocheck, help="folders where all precomputed results for the ab matrix is stored, see --save_all_precompute", required=False)
 
 params = parser.parse_args()
 
@@ -73,7 +73,7 @@ thresh_warp = params["thresh_warp"]
 use_json = params["use_json"]
 f_json = Path(params["f_json"])
 save_all_precompute = params["save_all_precompute"]
-stem_results = Path(params["stem_results"])
+# stem_results = Path(params["stem_results"])
 #######################################################################################################
 #######################################################################################################
 
@@ -119,10 +119,10 @@ if find_points_ref:
     print("done")
 else:
     print(
-        f"Loading data from {str(stem_results)}/coords.txt and /max_vals.txt. This will fail if these do not exist."
+        f"Loading data from coords.txt and /max_vals.txt. This will fail if these do not exist."
     )
-    coords = np.loadtxt(stem_results / "coords.txt")
-    max_vals = np.loadtxt(stem_results / "max_vals.txt")
+    coords = np.loadtxt("coords.txt")
+    max_vals = np.loadtxt("max_vals.txt")
 
 if find_points_warp:
     print("processing find_points_warp...", end='')
@@ -151,10 +151,10 @@ if find_points_warp:
     print("done")
 else:
     print(
-        f"Loading data from {str(stem_results)}/coords_warp.txt and /max_vals_warp.txt. This will fail if these do not exist."
+        f"Loading data from coords_warp.txt and /max_vals_warp.txt. This will fail if these do not exist."
     )
-    coords_warp = np.loadtxt(stem_results / "coords_warp.txt")
-    max_vals_warp = np.loadtxt(stem_results / "max_vals_warp.txt")
+    coords_warp = np.loadtxt("coords_warp.txt")
+    max_vals_warp = np.loadtxt("max_vals_warp.txt")
 
 # remove bad images by various metrics.
 inds = np.ones(max_vals_warp.shape[0]).astype(bool)
@@ -170,19 +170,19 @@ for i in range(len(inds) - 1):
 # look at the histogram to figure out the correct number
 if plot_dist_min_flag:
     plt.hist(dist[inds], 100)
-    plt.savefig(stem_results / 'distance_histogram.png')
+    plt.savefig('distance_histogram.png')
 inds[dist < dist_min] = False
 # inds[dist>1000] = False
 
 # save values from finding disks as text files
 if(save_all_precompute):
-    os.makedirs(stem_results, exist_ok=True)
-    np.savetxt(stem_results / "coords.txt", coords)
-    np.savetxt(stem_results / "max_vals.txt", max_vals)
-    np.savetxt(stem_results / "coords_warp.txt", coords_warp)####################################################################################
-    np.savetxt(stem_results / "max_vals_warp.txt", max_vals_warp)
-    np.savetxt(stem_results / "inds.txt", inds)
-    np.savetxt(stem_results / "dist.txt", dist)
+    # os.makedirs(stem_results, exist_ok=True)
+    np.savetxt("coords.txt", coords)
+    np.savetxt("max_vals.txt", max_vals)
+    np.savetxt("coords_warp.txt", coords_warp)####################################################################################
+    np.savetxt("max_vals_warp.txt", max_vals_warp)
+    np.savetxt("inds.txt", inds)
+    np.savetxt("dist.txt", dist)
 
 # fit surface, ab is the distortion matrix
 warp_avg = np.mean(warp_im, axis=(0, 1))
@@ -199,8 +199,8 @@ if use_json:
 
 # this command unwarps the image
 unwarped_test = im_tools.unwarp_im(warp_avg, ab, plot_flag=plot_flag)[0]
-plt.imsave(stem_results / "warped_test.png", warp_avg)
-plt.imsave(stem_results / "unwarped_test.png", unwarped_test)
+plt.imsave("warped_test.png", warp_avg)
+plt.imsave("unwarped_test.png", unwarped_test)
 
 # maybe still need to fix gain? using original image?  i don't think so...
 
