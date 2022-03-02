@@ -1,7 +1,6 @@
 {
-    "cpu_count":4,
+    "cpu_count":21,
     "stem_data": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data",
-    "stem_results": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/dewarping_results/100mrad_pelz",
     "f_ref": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (RonchiCam)_100mrad_pelz_tiltmap-002.npy",
     "f_warp": "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (Dectris)_100mrad_pelz_tiltmap.npy",
     "find_points_ref": true,
