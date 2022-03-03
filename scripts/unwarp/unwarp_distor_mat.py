@@ -35,7 +35,6 @@ Path_f_nocheck =  path_type('frw', docstring='str pointing to a file', skip_chec
 # help= can be used in the future to autogenerate yaml files with comments (https://jsonargparse.readthedocs.io/en/stable/index.html#configuration-files)
 parser = ArgumentParser(parse_as_dict=True)
 parser.add_argument('--cfg', action=ActionConfigFile)
-parser.add_argument("--cpu_count", type=int, help="amount of cores to be used", required=True)
 # more about how to use: https://jsonargparse.readthedocs.io/en/stable/#parsing-paths
 parser.add_argument("--stem_data", type=Path_dw, help="root folders where all the files are", required=True)
 parser.add_argument("--f_ref", type=Path_fr, help="tilt tableau datasets, ronchicam, 4D stack", required=True)
@@ -52,11 +51,11 @@ parser.add_argument("--thresh_warp", type=int, help="threshhold value for im_too
 parser.add_argument("--use_json", type=bool, help="this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp", default=False)
 parser.add_argument("--f_json", type=Path_f_nocheck, help="raw data stack path - 4D numpy files extracted from Swift", required=False)
 parser.add_argument("--save_all_precompute", type=bool, help="save dewarping parameters once all are successfully found as text files in the folder", default=False)
+parser.add_argument("--cpu_count", type=int, help="amount of cores to be used", required=True)
 # parser.add_argument("--stem_results", type=Path_nocheck, help="folders where all precomputed results for the ab matrix is stored, see --save_all_precompute", required=False)
 
 params = parser.parse_args()
 
-# TODO Nextflow? get usable processors: len(os.sched_getaffinity(0))
 cpu_count = params["cpu_count"]
 stem_data = Path(params["stem_data"])
 f_ref = stem_data / params["f_ref"]
@@ -89,7 +88,7 @@ warp_im, pad_size = im_tools.pad_square(warp_im, axis=(2, 3))
 # ref_im /= np.max(ref_im)
 # ref_im -= np.min(ref_im)
 
-# change shape of ref_im from (x, y, x',y') to (i, x', y') witha view, so no actula data is moved around
+# change shape of ref_im from (x, y, x',y') to (i, x', y') with a view, so no actual data is moved around
 
 if find_points_ref:
     print("processing find_points_ref...", end='')

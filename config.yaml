@@ -47,10 +47,15 @@ unwarp:
     # save dewarping parameters once all are successfully found as text files in the folder (type: bool, default: False)
     save_all_precompute: true
 
+    # amount of cores to be used (required, type: int)
+    cpu_count: 21
+
   unwarp_apply:
     # this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp (type: bool, default: False)
     use_json: false
-
+    
+    # amount of cores to be used (required, type: int)
+    cpu_count: 21
 
 make_adorym_data:
   #  (type: int, default: 4)

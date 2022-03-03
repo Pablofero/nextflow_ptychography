@@ -34,22 +34,18 @@ Path_f_nocheck =  Path_fr#path_type('frw', docstring='str pointing to a file', s
 # help= can be used in the future to autogenerate yaml files with comments (https://jsonargparse.readthedocs.io/en/stable/index.html#configuration-files)
 parser = ArgumentParser(parse_as_dict=True)
 parser.add_argument('--cfg', action=ActionConfigFile)
-parser.add_argument("--cpu_count", type=int, help="amount of cores to be used", required=True)
 # more about how to use: https://jsonargparse.readthedocs.io/en/stable/#parsing-paths
 parser.add_argument("--file", type=Path_f_nocheck, help="raw data stack path - 4D numpy files extracted from Swift", required=True)
 parser.add_argument("--ab", type=Path_f_nocheck, help="ab distortion matrix")
 parser.add_argument("--use_json", type=bool, help="this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp", default=False)
+parser.add_argument("--cpu_count", type=int, help="amount of cores to be used", required=True)
 #TODO flag for plotting
 
 #######################################################################################################
 #######################################################################################################
 
-# raw data stack path - 4D numpy files extracted from Swift.
-file = Path(
-        "/Users/Tom/Documents/Research/Data/2021/2021-02-16_bilayer_graphene_ptychography_second_library/exports/Spectrum Image (Dectris)_100mrad_pelz_filtered_21.13pm.npy"
-    )
 
-plot_flag = False
+# plot_flag = False
 
 
 ################################### -mod-  ############################################################
@@ -88,7 +84,7 @@ print(ab)
 ab = np.load(ab)#load distortion matrix
 # now we unwarp the 4D stacks of actual data
 data = np.load(file, mmap_mode="r")
-print(data.shape)
+print("data.shape:", data.shape)
 # print("padding real data...") #HACK no needed?: pad_size = ((0, 0), (0, 0), (0, 0), (0, 0))
 # data = np.pad(
 #     data, pad_size
