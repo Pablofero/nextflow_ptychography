@@ -1,15 +1,15 @@
 outputfolder: "output"
+# root folders where all the experimental data files are
+datafolder: "./data"
+# raw data stack path - 4D numpy files extracted from Swift
+datasets: Spectrum Image (Dectris)_100mrad_pelz_unfiltered_*.npy
+# tilt tableau datasets, ronchicam, 4D stack (required, type: Path_fr)
+unwarp_ref: "Spectrum Image (RonchiCam)_100mrad_pelz_tiltmap-002.npy"
+# tilt tableau datasets, dectris, 4D stack (required, type: Path_fr)
+unwarp_warp: "Spectrum Image (Dectris)_100mrad_pelz_tiltmap.npy"
+
 unwarp:
   unwarp_distor_mat:
-    # root folders where all the files are (required, type: Path_dw)
-    stem_data: "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data"
-
-    # tilt tableau datasets, ronchicam, 4D stack (required, type: Path_fr)
-    f_ref: "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (RonchiCam)_100mrad_pelz_tiltmap-002.npy"
-
-    # tilt tableau datasets, dectris, 4D stack (required, type: Path_fr)
-    f_warp: "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (Dectris)_100mrad_pelz_tiltmap.npy"
-
     # if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line (type: bool, default: True)
     find_points_ref: true
 
@@ -40,8 +40,8 @@ unwarp:
     # this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp (type: bool, default: False)
     use_json: false
 
-    # raw data stack path - 4D numpy files extracted from Swift (type: Path_frw_skip_check, default: null)
-    f_json: /testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum
+    # this is currently in beta (type: Path_frw_skip_check, default: null)
+    precomputed_json: /testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum
       Image (Dectris)_100mrad_pelz_tiltmap.json
 
     # save dewarping parameters once all are successfully found as text files in the folder (type: bool, default: False)
@@ -51,9 +51,6 @@ unwarp:
     cpu_count: 21
 
   unwarp_apply:
-    # this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp (type: bool, default: False)
-    use_json: false
-    
     # amount of cores to be used (required, type: int)
     cpu_count: 21
 

@@ -7,7 +7,7 @@ expandedParameters = toArgs1(moduleParams)
 process make_adorym_positions {
         publishDir "$params.outputfolder/adorym_positions", mode: 'copy'
         output:
-            path "*.npy"
+            path "*.npy", emit: pos
         script:
             """
             /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/scripts/make_adorym_positions.py $expandedParameters

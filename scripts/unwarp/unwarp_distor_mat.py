@@ -36,9 +36,8 @@ Path_f_nocheck =  path_type('frw', docstring='str pointing to a file', skip_chec
 parser = ArgumentParser(parse_as_dict=True)
 parser.add_argument('--cfg', action=ActionConfigFile)
 # more about how to use: https://jsonargparse.readthedocs.io/en/stable/#parsing-paths
-parser.add_argument("--stem_data", type=Path_dw, help="root folders where all the files are", required=True)
-parser.add_argument("--f_ref", type=Path_fr, help="tilt tableau datasets, ronchicam, 4D stack", required=True)
-parser.add_argument("--f_warp", type=Path_fr, help="tilt tableau datasets, dectris, 4D stack", required=True)
+parser.add_argument("--unwarp_ref", type=Path_f_nocheck, help="tilt tableau datasets, ronchicam, 4D stack", required=True)
+parser.add_argument("--unwarp_warp", type=Path_f_nocheck, help="tilt tableau datasets, dectris, 4D stack", required=True)
 parser.add_argument("--find_points_ref", type=bool, help="if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line", default=True)
 parser.add_argument("--find_points_warp", type=bool, help="if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line", default=True)
 parser.add_argument("--dist_min", type=int, help="how far apart (in pixels) do the detected disks in the ronchigram stack need to be, to be considered a valid disk", default=20)
@@ -49,7 +48,7 @@ parser.add_argument("--radius_warp", type=int, help="the radius used in im_tools
 parser.add_argument("--thresh_ref", type=int, help="threshhold value for im_tools.com_im", default=45)
 parser.add_argument("--thresh_warp", type=int, help="threshhold value for im_tools.com_im", default=4)
 parser.add_argument("--use_json", type=bool, help="this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp", default=False)
-parser.add_argument("--f_json", type=Path_f_nocheck, help="raw data stack path - 4D numpy files extracted from Swift", required=False)
+parser.add_argument("--precomputed_json", type=Path_f_nocheck, help="raw data stack path - 4D numpy files extracted from Swift", required=False)
 parser.add_argument("--save_all_precompute", type=bool, help="save dewarping parameters once all are successfully found as text files in the folder", default=False)
 parser.add_argument("--cpu_count", type=int, help="amount of cores to be used", required=True)
 # parser.add_argument("--stem_results", type=Path_nocheck, help="folders where all precomputed results for the ab matrix is stored, see --save_all_precompute", required=False)
@@ -57,9 +56,8 @@ parser.add_argument("--cpu_count", type=int, help="amount of cores to be used", 
 params = parser.parse_args()
 
 cpu_count = params["cpu_count"]
-stem_data = Path(params["stem_data"])
-f_ref = stem_data / params["f_ref"]
-f_warp = stem_data / params["f_warp"]
+f_ref = Path(params["unwarp_ref"])
+f_warp =  Path(params["unwarp_warp"])
 find_points_ref = params["find_points_ref"]
 find_points_warp = params["find_points_warp"]
 dist_min = params["dist_min"]
@@ -70,13 +68,12 @@ radius_warp = params["radius_warp"]
 thresh_ref = params["thresh_ref"]
 thresh_warp = params["thresh_warp"]
 use_json = params["use_json"]
-f_json = Path(params["f_json"])
+f_json = Path(params["precomputed_json"])
 save_all_precompute = params["save_all_precompute"]
-# stem_results = Path(params["stem_results"])
 #######################################################################################################
 #######################################################################################################
-
-x, y = im_tools.get_json_tilts(f_json)
+if use_json:
+    x, y = im_tools.get_json_tilts(f_json)
 
 
 ref_im = np.load(f_ref, mmap_mode="r")

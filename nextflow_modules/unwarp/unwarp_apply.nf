@@ -14,8 +14,7 @@ process unwarp_apply {
             path ab_distortion_matrix
         output:
             path "*_unwarped.npy", emit: unwarped
-            path "*_unwarped_json.npy" optional true
-            path "*.png" optional true 
+            path "*.png", emit: debug_png optional true  
         script:
             """
             /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/scripts/unwarp/unwarp_apply.py $expandedParameters --file $file_ --ab $ab_distortion_matrix

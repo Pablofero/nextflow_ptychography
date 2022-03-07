@@ -52,11 +52,9 @@ parser.add_argument("--cpu_count", type=int, help="amount of cores to be used", 
 ################################### UNFINISHED ############################################################
 
 params = parser.parse_args()
-# TODO Nextflow? get usable processors: len(os.sched_getaffinity(0))
 cpu_count = params["cpu_count"]
 file = Path(params["file"])
 ab = Path(params["ab"])
-use_json = params["use_json"]
 #######################################################################################################
 
 #######################################################################################################
@@ -68,10 +66,6 @@ use_json = params["use_json"]
 #     coords_warp[inds, 0],
 #     coords_warp[inds, 1],
 # )
-
-# if use_json:
-#     ab = im_tools.find_ab(x[inds] - np.mean(x[inds]), y[inds] -
-#                           np.mean(y[inds]), coords_warp[inds, 0], coords_warp[inds, 1])
 
 # # this command unwarps the image
 # im_tools.unwarp_im(warp_avg, ab, plot_flag=plot_flag)
@@ -142,8 +136,6 @@ plt.imsave(file.parent / "unwarped_mean.png", data_unwarp_mean**.25)
 
 #data_out.flush()
 f_out = file.parent / (file.stem + "_unwarped.npy")
-if use_json:
-    f_out = file.parent / (file.stem + "_unwarped_json.npy")
 np.save(f_out, data_out)
 #-# np.save(f_out, data)
 print(f"saved to {f_out}")

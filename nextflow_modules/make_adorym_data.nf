@@ -11,9 +11,9 @@ process make_adorym_data {
         input:
             path file_
         output:
-            path "*.h5" 
-            path "*_beamstop.npy"
-            path "*.png" optional true
+            path "*.h5" , emit: datasets_h5
+            path "*_beamstop.npy", emit: beamstop
+            path "*.png", emit: debug_png optional true
         script:
             """
             /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/scripts/make_adorym_data.py $expandedParameters --Path_2_Unwarped $file_
