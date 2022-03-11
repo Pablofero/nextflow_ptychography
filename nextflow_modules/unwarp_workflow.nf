@@ -1,26 +1,25 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+nextflow.enable.dsl=2 //use the newer version of nextflow (subworflows,etc see https://www.nextflow.io/docs/latest/dsl2.html)
 
-params.outputfolder = "output"
-//import modules after
+
+//import modules
 include {unwarp_distor_mat} from "./unwarp/unwarp_distor_mat.nf" 
 include {unwarp_apply} from "./unwarp/unwarp_apply.nf"
 
 workflow unwarp {
-        take:
+        take://inputs to the (sub)workflow
             datasets
             ref
             warp
         main:
-            unwarp_distor_mat = unwarp_distor_mat(ref,warp)
+            unwarp_distor_mat = unwarp_distor_mat(ref,warp) // calculate the  distortion matrix
             ab_mat = unwarp_distor_mat.ab_mat
-                    debug_txt = unwarp_distor_mat.debug_txt
+                    debug_txt = unwarp_distor_mat.debug_txt // by explicitly saving the output of the process we make it appear in the dag visualization
                     debug_png = unwarp_distor_mat.debug_png
 
             unwarp_apply = unwarp_apply(datasets,ab_mat)
                     unwarped = unwarp_apply.unwarped
                     debug_png = unwarp_apply.debug_png
-        emit:
+        emit: //output of the (sub)workflow
             unwarped
-            // path "${file_.getName().replaceAll(/.npy/, "_unwarped.npy")}" //"${file(file_).getSimpleName()}_unwarped.npy"
     }
