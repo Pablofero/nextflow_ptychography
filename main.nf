@@ -1,5 +1,6 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2 //use the newer version of nextflow (subworflows,etc see https://www.nextflow.io/docs/latest/dsl2.html)
+//use the newer version of nextflow (subworflows,etc see https://www.nextflow.io/docs/latest/dsl2.html) do not put comments after the dls=2 line!!
+nextflow.enable.dsl=2 
 
 //cmd: nextflow main.nf -params-file  config.yaml -with-report report.html
 
