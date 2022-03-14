@@ -94,5 +94,5 @@ make_adorym_positions:
   #  (type: float, default: 0.2)
   scan_Step_Size_y: 0.2
 
-  # evaluates the string, use with care! (type: str, default: np.pi/180*(333.68))
-  rot_ang_str: "np.pi/180*(333.68)" #TODO angle as input
+  # rotation angle in degrees (type: float, default: 0)
+  rot_ang_deg: 333.68
