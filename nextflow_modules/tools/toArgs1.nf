@@ -1,7 +1,7 @@
 def toArgs1(nextflow.script.ScriptBinding$ParamsMap p){//only one (1) level deep!!
     
     results = []
-    p.each{results << "--$it.key '${it.value.getClass()!=java.util.ArrayList ? it.value.toString() : (it.value).toString().replaceAll(",","").replace("[","").replace("]","")}'"}
+    p.each{results << "--$it.key ${it.value.getClass()!=java.util.ArrayList ? '\''+it.value.toString()+'\'' : (it.value).toString().replaceAll(",","").replace("[","").replace("]","")}"}
     return results.join(' ')
 }
 
