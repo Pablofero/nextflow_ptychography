@@ -21,7 +21,7 @@ parser.add_argument("--crop_r_before", type=int, help="number of first rows to c
 parser.add_argument("--crop_c_before", type=int, help="number of first columns to crop from the diffraction patterns.  Negative pads with edge values", default=0)
 parser.add_argument("--crop_r_after", type=int, help="number of last rows to crop from the diffraction pattern. Negative pads with edge values", default=0)
 parser.add_argument("--crop_c_after", type=int, help="number of last columns to crop from the diffraction pattern. Negative pads with edge values", default=0)
-parser.add_argument("--Scan_Pos_str", type=str, help="evaluates the string, use with care!", default=75**2)
+parser.add_argument("--scan_pos_list", type=int, nargs=2,help="list defining how many scan position there are by giving x and y amounts", default=[75,75])
 parser.add_argument("--Path_2_Unwarped", type=Path_f_nocheck)
 parser.add_argument("--rotate_180", type=bool, help="Rotate patterns 180 degrees", default=False)
 parser.add_argument("--out_name_append", type=str, help='start with "_"!, parameters will be the autoappended',default='_adorym_original')#og: _adorym_original_reduced75x75_shifted_bin4_rotated180 # TODO
@@ -46,15 +46,17 @@ else:
     raise ValueError('Padding and cropping at the same time is not allowed... yet. Please change crop_ parameters such that they are all positive or negative, not mixed.')
 
 binFactor = params['bin_Factor']
-ScanPos = eval(params['Scan_Pos_str']);ScanPos_str = params['Scan_Pos_str'].replace('/','⁄')
-size=values.shape[2]*values.shape[3]*ScanPos
+Scan_pos = params['scan_pos_list'][0]*params['scan_pos_list'][1]
+Scan_Pos_str = str(params['scan_pos_list']).replace('[','').replace(']','').replace(', ','*')
+# Scan_pos = eval(params['Scan_Pos_str']);Scan_pos_str = params['Scan_Pos_str'].replace('/','⁄')
+size=values.shape[2]*values.shape[3]*Scan_pos
 out_name_append = params['out_name_append']
 if out_name_append[0] != '_':
     raise ValueError('out_name_append must start with "_" but out_name_append is:"'+str(out_name_append)+'"')
 out_name_append+=('_rotated180'*params['rotate_180'])
 out_name_append+='_Dim'+str(values.shape[2])+str(values.shape[3])
 out_name_append+='_Bin'+str(binFactor)
-out_name_append+='_ScanPos'+ScanPos_str
+out_name_append+='_scan_pos'+Scan_Pos_str
 out_name_append+='_size'+str(size)
 print('out_name_append=',out_name_append)
 
@@ -62,13 +64,13 @@ dimension_r = values.shape[2]
 dimension_c = values.shape[3]
 
 values = np.transpose(values, (0,1,2,3)) # currently does nothing
-values =  np.reshape(values,(1,ScanPos,dimension_r,dimension_c))
+values =  np.reshape(values,(1,Scan_pos,dimension_r,dimension_c))
 # values *= 214183.488
 
 
 _, shifts = im_tools.shift_im_com(im_tools.bin_image(np.mean(values, axis=(0,1)), binFactor), thresh=1)
 
-values_new = np.zeros((1, ScanPos, int(dimension_r/binFactor), int(dimension_c/binFactor)))
+values_new = np.zeros((1, Scan_pos, int(dimension_r/binFactor), int(dimension_c/binFactor)))
 print('shifting data')
 for i in range(values.shape[1]):#tqdm was here
     if params['rotate_180']:

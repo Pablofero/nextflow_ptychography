@@ -70,8 +70,8 @@ make_adorym_data:
   # number of last columns to crop from the diffraction pattern. Negative pads with edge values (type: int, default: 0)
   crop_c_after: 0
 
-  # evaluates the string, use with care! (type: str, default: 5625)
-  Scan_Pos_str: "200**2" #TODO convert to list
+  # list defining how many scan position there are by giving x and y amounts (type: list of int, default: [75, 75])
+  scan_pos_list: [200,200] 
 
   # Rotate patterns 180 degrees (type: bool, default: False)
   rotate_180: true
