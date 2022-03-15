@@ -10,19 +10,19 @@ unwarp_warp: "Spectrum Image (Dectris)_100mrad_pelz_tiltmap.npy"
 
 unwarp:
   unwarp_distor_mat:
-    # if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line (type: bool, default: True)
+    # if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line (type: bool, default: true)
     find_points_ref: true
 
-    # if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line (type: bool, default: True)
+    # if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line (type: bool, default: true)
     find_points_warp: true
 
     # how far apart (in pixels) do the detected disks in the ronchigram stack need to be, to be considered a valid disk (type: int, default: 20)
     dist_min: 20
 
-    # look at the histogram to figure out the correct number (type: bool, default: False)
+    # look at the histogram to figure out the correct number (type: bool, default: false)
     plot_dist_min_flag: false
 
-    # this is slow, so return to false once the parameters above and below are found. (type: bool, default: False)
+    # this is slow, so return to false once the parameters above and below are found. (type: bool, default: false)
     plot_flag: false
 
     # the radius used in im_tools.mask_circ. 15 good for 100mrad_pelz, 30 good for DiffRef (type: int, default: 15)
@@ -37,14 +37,14 @@ unwarp:
     # threshhold value for im_tools.com_im (type: int, default: 4)
     thresh_warp: 4
 
-    # this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp (type: bool, default: False)
+    # this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp (type: bool, default: false)
     use_json: false
 
     # this is currently in beta (type: Path_frw_skip_check, default: null)
     precomputed_json: /testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum
       Image (Dectris)_100mrad_pelz_tiltmap.json
 
-    # save dewarping parameters once all are successfully found as text files in the folder (type: bool, default: False)
+    # save dewarping parameters once all are successfully found as text files in the folder (type: bool, default: false)
     save_all_precompute: true
 
     # amount of cores to be used (required, type: int)
@@ -73,7 +73,7 @@ make_adorym_data:
   # list defining how many scan position there are by giving x and y amounts (type: list of int, default: [75, 75])
   scan_pos_list: [200,200] 
 
-  # Rotate patterns 180 degrees (type: bool, default: False)
+  # Rotate patterns 180 degrees (type: bool, default: false)
   rotate_180: true
 
   # start with "_"!, parameters will be the autoappended (type: str, default: _adorym_original)
