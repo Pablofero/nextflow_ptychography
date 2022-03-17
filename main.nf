@@ -13,7 +13,7 @@ include {make_adorym_data} from "./nextflow_modules/make_adorym_data.nf"
 include {make_adorym_positions} from "./nextflow_modules/make_adorym_positions.nf"
 
 workflow {
-    //create input chanels
+    //create input channels
     datasets = channel.fromPath(params.datafolder+'/'+params.datasets)
     ref = channel.fromPath(params.datafolder+'/'+params.unwarp_ref)
     warp = channel.fromPath(params.datafolder+'/'+params.unwarp_warp)

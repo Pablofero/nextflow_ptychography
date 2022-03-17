@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2 //use the newer version of nextflow (subworflows,etc see https://www.nextflow.io/docs/latest/dsl2.html)
-
+//use the newer version of nextflow (subworflows,etc see https://www.nextflow.io/docs/latest/dsl2.html) do not put comments after the dls=2 line!!
+nextflow.enable.dsl=2
 
 //import modules
 include {unwarp_distor_mat} from "./unwarp/unwarp_distor_mat.nf" 
@@ -17,9 +17,10 @@ workflow unwarp {
                     debug_txt = unwarp_distor_mat.debug_txt // by explicitly saving the output of the process we make it appear in the dag visualization
                     debug_png = unwarp_distor_mat.debug_png
 
-            unwarp_apply = unwarp_apply(datasets,ab_mat)
+            unwarp_apply = unwarp_apply(datasets,ab_mat.first())
                     unwarped = unwarp_apply.unwarped
                     debug_png = unwarp_apply.debug_png
+
         emit: //output of the (sub)workflow
             unwarped
     }
