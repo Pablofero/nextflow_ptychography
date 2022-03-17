@@ -1,0 +1,50 @@
+digraph "pipeline_dag" {
+p0 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.fromPath"];
+p6 [label="unwarp:unwarp_apply"];
+p0 -> p6 [label="datasets"];
+
+p1 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.fromPath"];
+p3 [label="unwarp:unwarp_distor_mat"];
+p1 -> p3 [label="ref"];
+
+p2 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.fromPath"];
+p3 [label="unwarp:unwarp_distor_mat"];
+p2 -> p3 [label="warp"];
+
+p3 [label="unwarp:unwarp_distor_mat"];
+p6 [label="unwarp:unwarp_apply"];
+p3 -> p6 [label="ab_mat"];
+
+p3 [label="unwarp:unwarp_distor_mat"];
+p5 [shape=point];
+p3 -> p5 [label="debug_txt"];
+
+p3 [label="unwarp:unwarp_distor_mat"];
+p4 [shape=point];
+p3 -> p4 [label="debug_png"];
+
+p6 [label="unwarp:unwarp_apply"];
+p8 [label="make_adorym_data"];
+p6 -> p8 [label="unwarped"];
+
+p6 [label="unwarp:unwarp_apply"];
+p7 [shape=point];
+p6 -> p7 [label="debug_png"];
+
+p8 [label="make_adorym_data"];
+p11 [shape=point];
+p8 -> p11 [label="datasets_h5"];
+
+p8 [label="make_adorym_data"];
+p10 [shape=point];
+p8 -> p10 [label="beamstop"];
+
+p8 [label="make_adorym_data"];
+p9 [shape=point];
+p8 -> p9 [label="debug_png"];
+
+p12 [label="make_adorym_positions"];
+p13 [shape=point];
+p12 -> p13 [label="beam_pos"];
+
+}
