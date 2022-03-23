@@ -1,27 +1,34 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+//use the newer version of nextflow (subworflows,etc see https://www.nextflow.io/docs/latest/dsl2.html) do not put comments after the dls=2 line!!
+nextflow.enable.dsl=2 
 
-//paramteres
+//cmd: nextflow main.nf -params-file  config.yaml -with-report report.html
+
+//default parameters
 params.outputfolder = "output"
 
 //import modules
-// include {unwarp_memmap as unwarp} from "./nextflow_modules/unwarp_single.nf" addParams(confFile: "unwarp.json")
-include {unwarp} from "./nextflow_modules/unwarp_workflow.nf" addParams(confFile_Distor_mat: "unwarp_distor_mat.json")
-include {make_adorym_data} from "./nextflow_modules/make_adorym_data.nf" addParams(confFile: "make_adorym_data.json")
-include {make_adorym_positions} from "./nextflow_modules/make_adorym_positions.nf" addParams(confFile: "make_adorym_positions.json")
-
-
+include {unwarp} from "./nextflow_modules/unwarp_workflow.nf"
+include {make_adorym_data} from "./nextflow_modules/make_adorym_data.nf"
+include {make_adorym_positions} from "./nextflow_modules/make_adorym_positions.nf"
 
 workflow {
-    data = channel.fromPath('/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum Image (Dectris)_100mrad_pelz_unfiltered_*.npy')
-    unwarp(data) | make_adorym_data
-    make_adorym_positions()
-    // println("\n\nview:\n")
-    // make_adorym_data_out.view()
+    //create input channels
+    datasets = channel.fromPath(params.datafolder+'/'+params.datasets)
+    ref = channel.fromPath(params.datafolder+'/'+params.unwarp_ref)
+    warp = channel.fromPath(params.datafolder+'/'+params.unwarp_warp)
+    
+    unwarped_datasets = unwarp(datasets, ref, warp) // call the unwarp subworkflow, were the unwarping matrix is calculated and used to unwarp the data
+    make_adorym_data = make_adorym_data(unwarped_datasets)
+
+                datasets_h5 = make_adorym_data.datasets_h5 // by explicitly saving the output of the process we make it appear in the dag visualization
+                beamstop = make_adorym_data.beamstop
+                debug_png = make_adorym_data.debug_png
+
+
+    beam_pos = make_adorym_positions().pos
 }
 
-// usefull: http://nextflow-io.github.io/patterns/index.html
 
-/*notes:
-using collect to processes that need all data at once.
-*/
+
+// useful: http://nextflow-io.github.io/patterns/index.html
