@@ -3,13 +3,13 @@ outputfolder: "output"
 datafolder: "./data"
 # raw data stack path - 4D numpy files extracted from Swift
 datasets: Spectrum Image (Dectris)_100mrad_pelz_unfiltered_*.npy
-# tilt tableau datasets, ronchicam, 4D stack (required, type: Path_fr)
-unwarp_ref: "Spectrum Image (RonchiCam)_100mrad_pelz_tiltmap-002.npy"
-# tilt tableau datasets, dectris, 4D stack (required, type: Path_fr)
-unwarp_warp: "Spectrum Image (Dectris)_100mrad_pelz_tiltmap.npy"
 
-unwarp:
+unwarp_workflow:
   unwarp_distor_mat:
+    # tilt tableau datasets, ronchicam, 4D stack (required, type: Path_fr)
+    unwarp_ref: "Spectrum Image (RonchiCam)_100mrad_pelz_tiltmap-002.npy"
+    # tilt tableau datasets, dectris, 4D stack (required, type: Path_fr)
+    unwarp_warp: "Spectrum Image (Dectris)_100mrad_pelz_tiltmap.npy"
     # if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line (type: bool, default: true)
     find_points_ref: true
 

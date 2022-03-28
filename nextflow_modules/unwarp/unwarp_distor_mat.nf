@@ -5,7 +5,7 @@ nextflow.enable.dsl=2
 
 // extract the corresponding parameters from the params map (java terminology, equivalent to dictionary in python ) 
 include { toArgs1 } from "../tools/toArgs1.nf"
-moduleParams= new nextflow.script.ScriptBinding$ParamsMap(params.unwarp.unwarp_distor_mat) // "navigate"/"select" the right section in the Yaml 
+moduleParams= new nextflow.script.ScriptBinding$ParamsMap(params.unwarp_workflow.unwarp_distor_mat) // "navigate"/"select" the right section in the Yaml 
 expandedParameters = toArgs1(moduleParams) // create a string with the parameters given in the yaml in teh format: --key "value"
 
 process unwarp_distor_mat {

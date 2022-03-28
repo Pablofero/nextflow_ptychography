@@ -1,5 +1,7 @@
 def toArgs1(nextflow.script.ScriptBinding$ParamsMap p){//only one (1) level deep!!
-    
+    // Converts the params custom map to a command line argument format,  adding an -- for the flag/key and quoting the arguments with ", with the exception of lists (java.util.ArrayList), that are space separated without " (permalink to custom map: https://github.com/nextflow-io/nextflow/blob/8e5129d69d9cf9458ce92baa5654cdbf96484006/modules/nextflow/src/main/groovy/nextflow/script/ScriptBinding.groovy)
+    //the ? : is a ternary_operator, see https://groovy-lang.org/operators.html#_ternary_operator
+    // the .each{} is a groovy closures, see https://www.nextflow.io/docs/latest/script.html#closures and  http://groovy-lang.org/closures.html
     results = []
     p.each{results << "--$it.key ${it.value.getClass()!=java.util.ArrayList ? '\''+it.value.toString()+'\'' : (it.value).toString().replaceAll(",","").replace("[","").replace("]","")}"}
     return results.join(' ')

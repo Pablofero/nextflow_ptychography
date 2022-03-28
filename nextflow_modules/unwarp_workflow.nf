@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 include {unwarp_distor_mat} from "./unwarp/unwarp_distor_mat.nf" 
 include {unwarp_apply} from "./unwarp/unwarp_apply.nf"
 
-workflow unwarp {
+workflow unwarp_workflow {
         take://inputs to the (sub)workflow
             datasets
             ref

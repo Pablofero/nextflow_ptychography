@@ -2,7 +2,7 @@
 ___
 ### To run:
 ```
-nextflow main.nf -resume -params-file config.yaml -name run1 --outputfolder output1 
+nextflow run main.nf -resume -params-file config.yaml -name run1 --outputfolder output1 
 ```
 The resume option uses cached results (to mark as dirty, modify the corresponding .nf).
 The ```main.nf``` workflow saves it's outputs to a folder called ```output1``` 
@@ -34,9 +34,6 @@ ___
 * Remove hardcoded parameters in the scripts file out to a parameter file. More generally, clean up scripts. All parameters should be in parameter file, and not in `.py` scripts. 
 * Turn all `plt.imshow` or `plt.plot` calls into `plt.imsave` or `plt.savefig` files after drawing plot - keep all intermediate output that is small pngs. Is much cheaper to have these once they've been computed than investigating a 25 GB file. 
 * Clean up readme/repository information - make it more comprehensive.
-    * Add flowchart of what scripts are called in what order, and what parameter files they need. More comprehensive > less - e.g. `main.nf` -> `process` -> `unwarp/distor_mat` etc. This should include ideally all files that are used, created, etc. 
-    * Delete unnecessary files. 
-
 ___
 Python scripts written by Tom Pekin, workflow, parallelisation and modifications of scripts by Pablo Fernández Robledo. Also Wouter Van den Broek with the unwarping code for the Dectris detector
 
