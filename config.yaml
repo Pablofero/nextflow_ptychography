@@ -58,19 +58,10 @@ make_adorym_data:
   #  (type: int, default: 4)
   bin_Factor: 1
 
-  # number of first rows to crop from the diffraction pattern. Negative pads with edge values (type: int, default: 0)
-  crop_r_before: 0
+  # crop or pad the diffraction pattern, negative pads with edge values, positives crops. No combination supported yet [crop_pad_row_first, crop_pad_row_last, crop_pad_colum_first, crop_pad_colum_last] (type: list of 4 int, default: [0, 0, 0, 0])
+  crop_pad_diffraction: [0,0,0,0]
 
-  # number of first columns to crop from the diffraction patterns.  Negative pads with edge values (type: int, default: 0)
-  crop_c_before: 0
-
-  # number of last rows to crop from the diffraction pattern. Negative pads with edge values (type: int, default: 0)
-  crop_r_after: 0
-
-  # number of last columns to crop from the diffraction pattern. Negative pads with edge values (type: int, default: 0)
-  crop_c_after: 0
-
-  # list defining how many scan position there are by giving x and y amounts (type: list of int, default: [75, 75])
+  # list defining how many scan position there are by giving x and y amounts (type: list of 2 int, default: [75, 75])
   scan_pos_list: [200,200] 
 
   # Rotate patterns 180 degrees (type: bool, default: false)

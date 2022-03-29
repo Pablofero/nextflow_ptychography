@@ -90,7 +90,7 @@ dataV = data.view()
 # print(dataV.shape)
 dataV.shape = (data.shape[0]*data.shape[1], data.shape[2], data.shape[3])# data is ijkm, dataV is ĩkm
 print('creating RawArray...',end='')
-data_out_ctypes_arr = mp.RawArray(np.ctypeslib.as_ctypes_type(dataV.dtype),dataV.size)# Note that setting and getting an element is potentially non-atomic, ok in this case though as each process reads/writes data orthogonally to the others!
+data_out_ctypes_arr = mp.RawArray(np.ctypeslib.as_ctypes_type(dataV.dtype),dataV.size)# Note that setting and getting an element is potentially non-atomic, ok in this case though as each process reads/writes data independently to the others!
 print('done')
 print('creating np.array...')
 data_out_1d = np.ctypeslib.as_array(data_out_ctypes_arr,dataV.shape)
