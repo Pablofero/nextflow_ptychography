@@ -21,6 +21,6 @@ process unwarp_apply {
             path "*.png", emit: debug_png optional true  
         script: //default Bash, see https://www.nextflow.io/docs/latest/process.html#script
             """
-            /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/scripts/unwarp/unwarp_apply.py $expandedParameters --file $file_ --ab $ab_distortion_matrix
+            /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/bin/unwarp/unwarp_apply.py $expandedParameters --file $file_ --ab $ab_distortion_matrix
             """
     }

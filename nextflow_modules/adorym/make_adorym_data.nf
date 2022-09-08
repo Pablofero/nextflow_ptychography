@@ -4,13 +4,14 @@ nextflow.enable.dsl=2
 
 
 // extract the corresponding parameters from the params map (java terminology, equivalent to dictionary in python ) 
-include { toArgs1 } from "./tools/toArgs1.nf"
-moduleParams= new nextflow.script.ScriptBinding$ParamsMap(params.make_adorym_data) // "navigate"/"select" the right section in the Yaml
+include { toArgs1 } from "../tools/toArgs1.nf"
+moduleParams= new nextflow.script.ScriptBinding$ParamsMap(params.adorym_workflow.make_adorym_data) // "navigate"/"select" the right section in the Yaml
 // argParams = new nextflow.script.ScriptBinding$ParamsMap(moduleParams.argParams)
 expandedParameters = toArgs1(moduleParams) // create a string with the parameters given in the yaml in teh format: --key "value"
 
 process make_adorym_data {
-        publishDir "$params.outputfolder/${file_.getName().replaceAll(/.npy/,"")}/adorym_data", mode: 'copy' // location to save the outputs, copying as the default is to symbolically link!
+        cpus moduleParams.cpu_count
+        publishDir "$params.outputfolder/${file_.getName().replaceAll(/.npy/,'')}/beamstop", mode: 'copy'  , pattern: "{*_beamstop.npy,*.png}" // location to save the outputs, copying as the default is to symbolically link! , pattern '{"*_beamstop.npy","*.png"}'
         input:
             path file_ //see https://www.nextflow.io/docs/latest/process.html?#input-of-type-path
         output: // for understanding path: https://www.nextflow.io/docs/latest/process.html?#output-path
@@ -20,6 +21,6 @@ process make_adorym_data {
             path "*.png", emit: debug_png optional true
         script: //default Bash, see https://www.nextflow.io/docs/latest/process.html#script
             """
-            /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/scripts/make_adorym_data.py $expandedParameters --Path_2_Unwarped $file_
+            /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/bin/adorym/make_adorym_data.py $expandedParameters --Path_2_Unwarped $file_
             """
     }

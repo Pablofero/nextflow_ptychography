@@ -1,15 +1,15 @@
-outputfolder: "output"
+output_folder: output
 # root folders where all the experimental data files are
-datafolder: "./data"
+datafolder: ./data
 # raw data stack path - 4D numpy files extracted from Swift
 datasets: Spectrum Image (Dectris)_100mrad_pelz_unfiltered_*.npy
 
 unwarp_workflow:
   unwarp_distor_mat:
     # tilt tableau datasets, ronchicam, 4D stack (required, type: Path_fr)
-    unwarp_ref: "Spectrum Image (RonchiCam)_100mrad_pelz_tiltmap-002.npy"
+    unwarp_ref: Spectrum Image (RonchiCam)_100mrad_pelz_tiltmap-002.npy
     # tilt tableau datasets, dectris, 4D stack (required, type: Path_fr)
-    unwarp_warp: "Spectrum Image (Dectris)_100mrad_pelz_tiltmap.npy"
+    unwarp_warp: Spectrum Image (Dectris)_100mrad_pelz_tiltmap.npy
     # if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line (type: bool, default: true)
     find_points_ref: true
 
@@ -54,36 +54,92 @@ unwarp_workflow:
     # amount of cores to be used (required, type: int)
     cpu_count: 21
 
-make_adorym_data:
-  #  (type: int, default: 4)
-  bin_Factor: 1
+adorym_workflow:
+  make_adorym_data:
+    #  (type: int, default: 4)
+    bin_Factor: 1 #TODO
 
-  # crop or pad the diffraction pattern, negative pads with edge values, positives crops. No combination supported yet [crop_pad_row_first, crop_pad_row_last, crop_pad_colum_first, crop_pad_colum_last] (type: list of 4 int, default: [0, 0, 0, 0])
-  crop_pad_diffraction: [0,0,0,0]
+    # crop or pad the diffraction pattern, negative pads with edge values, positives crops. No combination supported yet [crop_pad_row_first, crop_pad_row_last, crop_pad_colum_first, crop_pad_colum_last] (type: list of 4 int, default: [0, 0, 0, 0])
+    crop_pad_diffraction: [0,0,0,0]
 
-  # list defining how many scan position there are by giving x and y amounts (type: list of 2 int, default: [75, 75])
-  scan_pos_list: [200,200] 
+    # list defining how many scan position there are by giving x and y amounts (type: list of 2 int, default: [75, 75])
+    scan_pos_list: [200,200] #TODO
 
-  # Rotate patterns 180 degrees (type: bool, default: false)
-  rotate_180: true
+    # Rotate patterns 180 degrees (type: bool, default: false)
+    rotate_180: true
 
-  # start with "_"!, parameters will be the autoappended (type: str, default: _adorym_original)
-  out_name_append: "_adorym_original_shifted_rotated180"
+    # start with "_"!, parameters will be the autoappended (type: str, default: _adorym_original)
+    out_name_append: _adorym_original_shifted
+    
+    # amount of cores to be used (required, type: int)
+    cpu_count: 21
+
+  make_adorym_positions:
+    #  (type: int, default: 50)
+    N_scan_x: 75
+
+    #  (type: int, default: 50)
+    N_scan_y: 75
+
+    #  (type: float, default: 0.2)
+    scan_Step_Size_x: 0.2
+
+    #  (type: float, default: 0.2)
+    scan_Step_Size_y: 0.2
+
+    # rotation angle in degrees (type: float, default: 0)
+    rot_ang_deg: 333.68
+  
+  make_adorym_reconstruct: # Adorym params settings, strings MUST be decorated like so: '"string"'
+    theta_st : 0
+    theta_end : 0
+    n_theta : 1
+    theta_downsample : 1
+    n_epochs : 400 # for testing
+    #obj_size : (x,y,1) # see make_adorym_positions.N_scan_
+    alpha_d : 0
+    alpha_b : 0
+    gamma : 0
+    learning_rate : 4e-05
+    center : 0
+    energy_ev : 254811.087
+    psize_cm : 1.009e-09
+    minibatch_size : 75**2 # 1000 # 10Gb #2000 brakes
+    n_batch_per_update : 1
+    output_folder : None
+    cpu_only : False
+    save_path : '"."'
+    multiscale_level : 1
+    n_epoch_final_pass : None
+    save_intermediate : True
+    full_intermediate : True
+    initial_guess : None
+    n_dp_batch : 100 
+    probe_type : '"ifft"'
+    n_probe_modes : 1
+    probe_initial : None
+    optimize_probe : False
+    forward_algorithm : '"fresnel"'
+    object_type : '"phase_only"'
+    finite_support_mask : None
+    free_prop_cm : '"inf"'
+    optimizer : '"cg"'
+    two_d_mode : True
+    distribution_mode : None
+    use_checkpoint : False
+    optimize_all_probe_pos : False
+      #'loss_function_type': 'poisson',
+      #'poisson_multiplier': 88.0,
+    save_history : True
+    backend : '"pytorch"'
+    randomize_probe_pos : False
+    pure_projection : False
+    safe_zone_width : 50 
+    optimize_probe_defocusing : False
+    precalculate_rotation_coords : False
+    unknown_type : '"real_imag"'
 
 
-
-make_adorym_positions:
-  #  (type: int, default: 50)
-  N_scan_x: 50
-
-  #  (type: int, default: 50)
-  N_scan_y: 50
-
-  #  (type: float, default: 0.2)
-  scan_Step_Size_x: 0.2
-
-  #  (type: float, default: 0.2)
-  scan_Step_Size_y: 0.2
-
-  # rotation angle in degrees (type: float, default: 0)
-  rot_ang_deg: 333.68
+  # adorym_reconstruct:
+  #   test: a
+    

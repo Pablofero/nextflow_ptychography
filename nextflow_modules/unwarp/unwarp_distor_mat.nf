@@ -21,6 +21,6 @@ process unwarp_distor_mat {
             path "*.png", emit: debug_png optional true //if save_all_precompute is true, then *.png 
         script: //default Bash, see https://www.nextflow.io/docs/latest/process.html#script
             """
-            /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/scripts/unwarp/unwarp_distor_mat.py $expandedParameters --unwarp_ref $ref --unwarp_warp $warp
+            /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/bin/unwarp/unwarp_distor_mat.py $expandedParameters --unwarp_ref $ref --unwarp_warp $warp
             """
     }

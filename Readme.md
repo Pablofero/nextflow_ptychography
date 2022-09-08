@@ -15,7 +15,7 @@ ___
 ├─ data/ - input files
 ├─ nextflow_modules/ - do not need to change
 ├─ output/ - (autogen.)
-├─ scripts/ - scripts - the code that is called
+├─ bin/ - scripts - the code that is called
 ├─ work/ - (autogen.) nextflow's cache, you can look here to get valuable information on how your script run (the 'random' characters)
 ├─ main.nf - main nextflow workflow
 ├─ nextflow.config - nextflow execution configurations (how many CPUs/RAM, SLURM, etc.)
@@ -31,7 +31,7 @@ ___
              ├─ outputs/ - outputs from nextflow (all of them)
              ├─ nextflow/ - everything that is only nextflow related - no data
 
-* Remove hardcoded parameters in the scripts file out to a parameter file. More generally, clean up scripts. All parameters should be in parameter file, and not in `.py` scripts. 
+* Remove hardcoded parameters in the scripts file out to a parameter file. More generally, clean up scripts. All parameters should be in parameter file, and not in `.py` bin. 
 * Turn all `plt.imshow` or `plt.plot` calls into `plt.imsave` or `plt.savefig` files after drawing plot - keep all intermediate output that is small pngs. Is much cheaper to have these once they've been computed than investigating a 25 GB file. 
 * Clean up readme/repository information - make it more comprehensive.
 ___
