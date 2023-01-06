@@ -10,23 +10,26 @@ moduleParams= new nextflow.script.ScriptBinding$ParamsMap(params.adorym_workflow
 expandedParameters = toArgs1(moduleParams) // create a string with the parameters given in the yaml in teh format: --key "value"
 
 process adorym_reconstruct {
-        clusterOptions "--gres=gpu:1" //custom Slurm settings 
-        publishDir "$params.outputfolder/${datasets_h5_in.getName().replaceAll(/.npy/,"")}/adorym/", mode: 'copy' // location to save the outputs, copying as the default is to symbolically link!
+        label 'adorym'
+        publishDir "$params.outputfolder/${datasets_h5.getName().replaceAll(/.npy/,"")}/adorym/", mode: 'copy' // location to save the outputs, copying as the default is to symbolically link!
         input:
-            path datasets_h5_in  //see https://www.nextflow.io/docs/latest/process.html?#input-of-type-path
-            path probe_positions
+            tuple path(datasets_h5) , path(probe_positions),  path(shape)
+            // path datasets_h5_in  //see https://www.nextflow.io/docs/latest/process.html?#input-of-type-path
+            // path probe_positions
             path beamstop
             path py_executable
         output: // for understanding path: https://www.nextflow.io/docs/latest/process.html?#output-path
                 // emit: define a name identifier that can be used to reference the channel in the external scope, see also https://www.nextflow.io/docs/latest/dsl2.html?highlight=emit#process-named-output
              path "*", emit: adorym_out
-            // path "*.h5" , includeInputs: true ,emit: datasets_h5
-            // path "beam_pos_*.npy" , includeInputs: true ,emit: probe_positions
-            // path "*beamstop.npy" , includeInputs: true ,emit: beamstop
-            // path "adorym_recostruct.py" , emit: py_executable
+             path "recon*/beta_ds_*.tiff", emit: beta
+             path "recon*/delta_ds_*.tiff", emit: delta
+             path "recon*/probe_mag_ds_*.tiff", emit: probe_mag
+             path "recon*/probe_phase_ds_*.tiff", emit: probe_phase
+        // echo true // output standart out to terminal
+
         script: //default Bash, see https://www.nextflow.io/docs/latest/process.html#script
-            print(task.workDir)
             """
-            /opt/anaconda3/envs/tompekin-basic/bin/python $py_executable
+            python $py_executable
             """
     }
+    // /opt/anaconda3/envs/tompekin-basic/bin/

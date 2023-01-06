@@ -14,13 +14,17 @@ process make_adorym_data {
         publishDir "$params.outputfolder/${file_.getName().replaceAll(/.npy/,'')}/beamstop", mode: 'copy'  , pattern: "{*_beamstop.npy,*.png}" // location to save the outputs, copying as the default is to symbolically link! , pattern '{"*_beamstop.npy","*.png"}'
         input:
             path file_ //see https://www.nextflow.io/docs/latest/process.html?#input-of-type-path
+
         output: // for understanding path: https://www.nextflow.io/docs/latest/process.html?#output-path
                 // emit: define a name identifier that can be used to reference the channel in the external scope, see also https://www.nextflow.io/docs/latest/dsl2.html?highlight=emit#process-named-output
-            path "*.h5" , emit: datasets_h5
+            tuple path("*.h5") , path("beam_pos_*.npy"),  path("tile_*_shape.npy"), emit: datasets_h5
             path "*_beamstop.npy", emit: beamstop
+            path "total_tiles_shape.npy", emit: total_tiles_shape
+            path "probe_size.npy", emit: probe_size
             path "*.png", emit: debug_png optional true
         script: //default Bash, see https://www.nextflow.io/docs/latest/process.html#script
             """
-            /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/bin/adorym/make_adorym_data.py $expandedParameters --Path_2_Unwarped $file_
+            python $projectDir/bin/mytools/make_data_split.py $expandedParameters --Path_2_Unwarped $file_
             """
     }
+    // /opt/anaconda3/envs/tompekin-basic/bin/python $projectDir/bin/adorym/make_adorym_data.py $expandedParameters --Path_2_Unwarped $file_

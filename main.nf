@@ -7,7 +7,7 @@ nextflow.enable.dsl=2
 
 //default parameters
 params.output_folder = "output_"
-params.outputfolder = params.output_folder+'_'+workflow.start+'_'+workflow.runName
+params.outputfolder = params.output_folder//+'_'+workflow.start+'_'+workflow.runName
 params.datafolder =  "./data"
 params.datasets = ""
 println("output_"+workflow.runName)
@@ -35,11 +35,13 @@ workflow {
 
         datasets = unwarp_workflow(datasets, ref, warp) // call the unwarp subworkflow, were the unwarping matrix is calculated and used to unwarp the data
     }
-
+    // if do_split(){
+    //     datasets = split(datasets)
+    // }
     if(do_adorym_workflow){
-        adorym_workflow(datasets)
+       out =  adorym_workflow(datasets)
     }
-    
+    // .toList()
 }
 
 include {render_dag} from "./nextflow_modules/tools/render_dag.nf"

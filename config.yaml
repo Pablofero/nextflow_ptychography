@@ -48,25 +48,34 @@ unwarp_workflow:
     save_all_precompute: true
 
     # amount of cores to be used (required, type: int)
-    cpu_count: 21
+    cpu_count: 20
 
   unwarp_apply:
     # amount of cores to be used (required, type: int)
-    cpu_count: 21
+    cpu_count: 20
 
 adorym_workflow:
   make_adorym_data:
-    #  (type: int, default: 4)
+    # diffraction pattern binning (type: int, default: 4)
     bin_Factor: 1 #TODO
 
+    # list defining how many subarrays to split the data into (type: list of 2 int, default: [1, 1])
+    #split_in_subarray_num_list: [2,2]
+    
     # crop or pad the diffraction pattern, negative pads with edge values, positives crops. No combination supported yet [crop_pad_row_first, crop_pad_row_last, crop_pad_colum_first, crop_pad_colum_last] (type: list of 4 int, default: [0, 0, 0, 0])
     crop_pad_diffraction: [0,0,0,0]
 
-    # list defining how many scan position there are by giving x and y amounts (type: list of 2 int, default: [75, 75])
+    # # list defining how many scan position there are by giving x and y amounts (type: list of 2 int, default: [75, 75])
     scan_pos_list: [200,200] #TODO
+
+    # Size of the electron probe, a negative entry in the first index -> uses the resulting diffraction pattern size (type: list of 2 int, default: [-1, -1])
+    # probe_size: [213,213] 
 
     # Rotate patterns 180 degrees (type: bool, default: false)
     rotate_180: true
+
+    # the pixel size of the reconstruction in angstroms (type: float)
+    px_size_ang: 0
 
     # start with "_"!, parameters will be the autoappended (type: str, default: _adorym_original)
     out_name_append: _adorym_original_shifted
@@ -74,18 +83,21 @@ adorym_workflow:
     # amount of cores to be used (required, type: int)
     cpu_count: 21
 
-  make_adorym_positions:
+  # make_adorym_positions:
     #  (type: int, default: 50)
-    N_scan_x: 75
+    # N_scan_x: 75
 
-    #  (type: int, default: 50)
-    N_scan_y: 75
+    # #  (type: int, default: 50)
+    # N_scan_y: 75
 
-    #  (type: float, default: 0.2)
-    scan_Step_Size_x: 0.2
+    # Angstroms (type: float)
+    scan_Step_Size_x_A: 5
 
-    #  (type: float, default: 0.2)
-    scan_Step_Size_y: 0.2
+    # Angstroms (type: float)
+    scan_Step_Size_y_A: 5
+
+    # the pixel size of the reconstruction in meters (type: float, default: 1e-10)
+    # px_size_ang_m : 0
 
     # rotation angle in degrees (type: float, default: 0)
     rot_ang_deg: 333.68
@@ -100,11 +112,12 @@ adorym_workflow:
     alpha_d : 0
     alpha_b : 0
     gamma : 0
+    # learning_rate : 4e-05
     learning_rate : 4e-05
     center : 0
     energy_ev : 254811.087
     psize_cm : 1.009e-09
-    minibatch_size : 75**2 # 1000 # 10Gb #2000 brakes
+    minibatch_size : 1400 #75**2 # 1000 # 10Gb #2000 brakes for  [200,200]
     n_batch_per_update : 1
     output_folder : None
     cpu_only : False
@@ -131,7 +144,7 @@ adorym_workflow:
       #'loss_function_type': 'poisson',
       #'poisson_multiplier': 88.0,
     save_history : True
-    backend : '"pytorch"'
+    backend : '"pytorch"' #
     randomize_probe_pos : False
     pure_projection : False
     safe_zone_width : 50 
@@ -140,6 +153,6 @@ adorym_workflow:
     unknown_type : '"real_imag"'
 
 
-  # adorym_reconstruct:
-  #   test: a
+  adorym_reconstruct:
+    test: a
     

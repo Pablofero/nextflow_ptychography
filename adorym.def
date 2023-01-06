@@ -1,0 +1,19 @@
+Bootstrap: docker
+From: nvcr.io/nvidia/pytorch:22.04-py3
+
+%environment
+    export PATH=$PATH
+
+%labels
+    AUTHOR Tom Pekin & Pablo Fernandez Robledo
+
+%post
+    conda install -c conda-forge dxchange pandas=1.4 autograd=1.5
+    #dxchange does pandas-1.2.3
+    git clone https://github.com/tcpekin/adorym.git 
+    #cd adorym
+    #git checkout remove_hardcoded_backend
+    #cd ..
+    pip install ./adorym
+
+    # sed -i s/"override_backend='autograd'"/"override_backend='None'"/g adorym/adorym/util.py
