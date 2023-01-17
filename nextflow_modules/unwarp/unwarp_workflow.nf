@@ -29,6 +29,9 @@ workflow unwarp_workflow {
                     debug_txt = unwarp_distor_mat.debug_txt // by explicitly saving the output of the process we make it appear in the dag visualization
                     debug_png = unwarp_distor_mat.debug_png
             }else{
+                if(do_unwarp_apply){
+                    ab_mat= channel.fromPath(params.datafolder+'/'+params.unwarp_workflow.unwarp_apply.ab_mat)
+                }
                 ab_mat=Null
             }
             if(do_unwarp_apply){
