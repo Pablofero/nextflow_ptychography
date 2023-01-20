@@ -6,6 +6,7 @@ import multiprocessing as mp
 from math import ceil
 import os
 import sys
+from typing import Union
 
 
 # print(os.getcwd())
@@ -36,7 +37,7 @@ Path_f_nocheck =  path_type('frw', docstring='str pointing to a file', skip_chec
 parser = ArgumentParser(parse_as_dict=True)
 parser.add_argument('--cfg', action=ActionConfigFile)
 # more about how to use: https://jsonargparse.readthedocs.io/en/stable/#parsing-paths
-parser.add_argument("--unwarp_ref", type=Path_f_nocheck, help="tilt tableau datasets, ronchicam, 4D stack", required=True)
+parser.add_argument("--unwarp_ref", type=Union[Path_f_nocheck,None], help="tilt tableau datasets, ronchicam, 4D stack", required=False)
 parser.add_argument("--unwarp_warp", type=Path_f_nocheck, help="tilt tableau datasets, dectris, 4D stack", required=True)
 parser.add_argument("--find_points_ref", type=bool, help="if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line", default=True)
 parser.add_argument("--find_points_warp", type=bool, help="if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line", default=True)
@@ -48,7 +49,7 @@ parser.add_argument("--radius_warp", type=int, help="the radius used in im_tools
 parser.add_argument("--thresh_ref", type=int, help="threshhold value for im_tools.com_im", default=45)
 parser.add_argument("--thresh_warp", type=int, help="threshhold value for im_tools.com_im", default=4)
 parser.add_argument("--use_json", type=bool, help="this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp", default=False)
-parser.add_argument("--precomputed_json", type=Path_f_nocheck, help="raw data stack path - 4D numpy files extracted from Swift", required=False)
+parser.add_argument("--precomputed_json", type=Union[Path_f_nocheck,None], help="raw data stack path - 4D numpy files extracted from Swift", required=False)
 parser.add_argument("--save_all_precompute", type=bool, help="save dewarping parameters once all are successfully found as text files in the folder", default=False)
 parser.add_argument("--cpu_count", type=int, help="amount of cores to be used", required=True)
 # parser.add_argument("--stem_results", type=Path_nocheck, help="folders where all precomputed results for the ab matrix is stored, see --save_all_precompute", required=False)
@@ -56,7 +57,7 @@ parser.add_argument("--cpu_count", type=int, help="amount of cores to be used", 
 params = parser.parse_args()
 
 cpu_count = params["cpu_count"]
-f_ref = Path(params["unwarp_ref"])
+sf_ref = params["unwarp_ref"]
 f_warp =  Path(params["unwarp_warp"])
 find_points_ref = params["find_points_ref"]
 find_points_warp = params["find_points_warp"]
@@ -68,15 +69,12 @@ radius_warp = params["radius_warp"]
 thresh_ref = params["thresh_ref"]
 thresh_warp = params["thresh_warp"]
 use_json = params["use_json"]
-f_json = Path(params["precomputed_json"])
+sf_json = params["precomputed_json"]
 save_all_precompute = params["save_all_precompute"]
 #######################################################################################################
 #######################################################################################################
-if use_json:
-    x, y = im_tools.get_json_tilts(f_json)
 
 
-ref_im = np.load(f_ref, mmap_mode="r")
 warp_im = np.load(f_warp)
 
 # make Dectris data square, to prevent clipping
@@ -86,8 +84,11 @@ warp_im, pad_size = im_tools.pad_square(warp_im, axis=(2, 3))
 # ref_im -= np.min(ref_im)
 
 # change shape of ref_im from (x, y, x',y') to (i, x', y') with a view, so no actual data is moved around
-
-if find_points_ref:
+if use_json:
+    print("read in coords through json: {}".format(sf_json))
+    x, y = im_tools.get_json_tilts(Path(sf_json))
+elif find_points_ref:
+    ref_im = np.load(Path(sf_ref), mmap_mode="r")
     print("processing find_points_ref...", end='')
     ref_imV = ref_im.view()  # check that nothing is copied! (it errors out in the next line)
     ref_imV.shape = (ref_im.shape[0]*ref_im.shape[1],
@@ -152,48 +153,51 @@ else:
     coords_warp = np.loadtxt("coords_warp.txt")
     max_vals_warp = np.loadtxt("max_vals_warp.txt")
 
-# remove bad images by various metrics.
+    # remove bad images by various metrics.
 inds = np.ones(max_vals_warp.shape[0]).astype(bool)
 inds[max_vals_warp < 0.5 * np.mean(max_vals_warp)] = False
-inds[max_vals < np.mean(max_vals)] = False
-
-# minimum distance metric
-# set a minimum distance between spots due to ronchiogram ghosting
-dist = np.zeros_like(inds).astype(float)
-for i in range(len(inds) - 1):
-    dist[i + 1] = np.linalg.norm(coords[i + 1, :] - coords[i, :])
-
-# look at the histogram to figure out the correct number
-if plot_dist_min_flag:
-    plt.hist(dist[inds], 100)
-    plt.savefig('distance_histogram.png')
-inds[dist < dist_min] = False
-# inds[dist>1000] = False
-
-# save values from finding disks as text files
-if(save_all_precompute):
-    # os.makedirs(stem_results, exist_ok=True)
-    np.savetxt("coords.txt", coords)
-    np.savetxt("max_vals.txt", max_vals)
-    np.savetxt("coords_warp.txt", coords_warp)####################################################################################
-    np.savetxt("max_vals_warp.txt", max_vals_warp)
-    np.savetxt("inds.txt", inds)
-    np.savetxt("dist.txt", dist)
-
-# fit surface, ab is the distortion matrix
-warp_avg = np.mean(warp_im, axis=(0, 1))
-ab = im_tools.find_ab(
-    coords[inds, 0] - np.mean(coords[inds, 0]),
-    coords[inds, 1] - np.mean(coords[inds, 1]),
-    coords_warp[inds, 0],
-    coords_warp[inds, 1],
-)
-
 if use_json:
     ab = im_tools.find_ab(x[inds] - np.mean(x[inds]), y[inds] -
                           np.mean(y[inds]), coords_warp[inds, 0], coords_warp[inds, 1])
+else:
+    # remove bad images by various metrics.
+    inds[max_vals < np.mean(max_vals)] = False
+
+    # minimum distance metric
+    # set a minimum distance between spots due to ronchiogram ghosting
+    dist = np.zeros_like(inds).astype(float)
+    for i in range(len(inds) - 1):
+        dist[i + 1] = np.linalg.norm(coords[i + 1, :] - coords[i, :])
+
+    # look at the histogram to figure out the correct number
+    if plot_dist_min_flag:
+        plt.hist(dist[inds], 100)
+        plt.savefig('distance_histogram.png')
+    inds[dist < dist_min] = False
+    # inds[dist>1000] = False
+
+    # save values from finding disks as text files
+
+    # fit surface, ab is the distortion matrix
+    ab = im_tools.find_ab(
+        coords[inds, 0] - np.mean(coords[inds, 0]),
+        coords[inds, 1] - np.mean(coords[inds, 1]),
+        coords_warp[inds, 0],
+        coords_warp[inds, 1],
+    )
+if(save_all_precompute):
+    # os.makedirs(stem_results, exist_ok=True)
+    np.savetxt("coords_warp.txt", coords_warp)####################################################################################
+    np.savetxt("max_vals_warp.txt", max_vals_warp)
+    np.savetxt("inds.txt", inds)
+    if not use_json:
+        np.savetxt("coords.txt", coords)
+        np.savetxt("dist.txt", dist)
+        np.savetxt("max_vals.txt", max_vals)
+
 
 # this command unwarps the image
+warp_avg = np.mean(warp_im, axis=(0, 1))
 unwarped_test = im_tools.unwarp_im(warp_avg, ab, plot_flag=plot_flag)[0]
 plt.imsave("warped_test.png", warp_avg)
 plt.imsave("unwarped_test.png", unwarped_test)

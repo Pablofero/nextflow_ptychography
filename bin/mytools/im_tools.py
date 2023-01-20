@@ -349,12 +349,12 @@ def get_json_tilts(f):
 
     fov_x = obj["metadata"]["scan"][fov[v]][0]
     fov_x = int(fov_x)
-    scl_x = obj["scl[v]"][0]["scale"]
+    scl_x = obj[scl[v]][0]["scale"]
     x = np.linspace(-1, 1, fov_x) * scl_x
     print(x)
     fov_y = obj["metadata"]["scan"][fov[v]][1]
     fov_y = int(fov_y)
-    scl_y = obj["scl[v]"][1]["scale"]
+    scl_y = obj[scl[v]][1]["scale"]
     y = np.linspace(-1, 1, fov_y) * scl_y
 
     [x, y] = np.meshgrid(x, y, indexing="ij")
