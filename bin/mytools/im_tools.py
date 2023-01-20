@@ -327,20 +327,26 @@ def get_json_tilts(f):
     This function will read the json file acquired from a tilt tableau and generate the correct xy points.
     The json file is output by exporting the tilt tablea from Nion Swift
     """
+    #for compatibility, checks "version" described in json
+    fov = {1:"scan_context_size",13:"fov_nm"}
+    scl = {1:"spatial_calibrations",13:"dimensional_calibrations"}
+
     # read file
     with open(f, "r") as f_data:
         metadata = f_data.read()
 
     # parse file
     obj = json.loads(metadata)
-    fov_x = obj["metadata"]["scan"]["scan_context_size"][0]
+    v = obj["version"]
+
+    fov_x = obj["metadata"]["scan"][fov[v]][0]
     fov_x = int(fov_x)
-    scl_x = obj["dimensional_calibrations"][0]["scale"]
+    scl_x = obj["scl[v]"][0]["scale"]
     x = np.linspace(-1, 1, fov_x) * scl_x
     print(x)
-    fov_y = obj["metadata"]["scan"]["scan_context_size"][1]
+    fov_y = obj["metadata"]["scan"][fov[v]][1]
     fov_y = int(fov_y)
-    scl_y = obj["dimensional_calibrations"][1]["scale"]
+    scl_y = obj["scl[v]"][1]["scale"]
     y = np.linspace(-1, 1, fov_y) * scl_y
 
     [x, y] = np.meshgrid(x, y, indexing="ij")
