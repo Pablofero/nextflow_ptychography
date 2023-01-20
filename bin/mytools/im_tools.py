@@ -329,7 +329,7 @@ def get_json_tilts(f):
     """
     # for compatibility, checks "version" described in json
     versions = [1,13]
-    fov = {1:"scan_context_size",13:"fov_nm"}
+    fov = {1:"scan_context_size",13:"scan_context_size"}
     scl = {1:"spatial_calibrations",13:"dimensional_calibrations"}
 
     # read file
