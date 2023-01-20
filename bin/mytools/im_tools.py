@@ -327,7 +327,8 @@ def get_json_tilts(f):
     This function will read the json file acquired from a tilt tableau and generate the correct xy points.
     The json file is output by exporting the tilt tablea from Nion Swift
     """
-    #for compatibility, checks "version" described in json
+    # for compatibility, checks "version" described in json
+    versions = [1,13]
     fov = {1:"scan_context_size",13:"fov_nm"}
     scl = {1:"spatial_calibrations",13:"dimensional_calibrations"}
 
@@ -337,7 +338,14 @@ def get_json_tilts(f):
 
     # parse file
     obj = json.loads(metadata)
+
     v = obj["version"]
+    if v not in versions: # check if still compatible with latest version
+        if fov[max(versions)] not in obj.keys():
+            raise IndexError("Due to version({}) change of the json_tilts file, the fov parameter is different. Please modify get_json_tilts to add the new naming schema".format(v))
+        if scl[max(versions)] not in obj.keys():
+            raise IndexError("Due to version({}) change of the json_tilts file, the scl parameter is different. Please modify get_json_tilts to add the new naming schema".format(v))
+        v = max(versions) # no errors raised, so ok to use latest version
 
     fov_x = obj["metadata"]["scan"][fov[v]][0]
     fov_x = int(fov_x)
