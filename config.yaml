@@ -4,63 +4,66 @@ datafolder: ./data
 # raw data stack path - 4D numpy files extracted from Swift
 datasets: Spectrum Image (Dectris)_100mrad_pelz_unfiltered_*.npy
 
-unwarp_workflow:
-  unwarp_distor_mat:
-    # tilt tableau datasets, ronchicam, 4D stack (required, type: Path_fr)
-    unwarp_ref: Spectrum Image (RonchiCam)_100mrad_pelz_tiltmap-002.npy
-    # tilt tableau datasets, dectris, 4D stack (required, type: Path_fr)
-    unwarp_warp: Spectrum Image (Dectris)_100mrad_pelz_tiltmap.npy
-    # if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line (type: bool, default: true)
-    find_points_ref: true
+# unwarp_workflow:
+#   unwarp_distor_mat:
+#     # tilt tableau datasets, ronchicam, 4D stack (required, type: Path_fr)
+#     # unwarp_ref: Spectrum Image (RonchiCam)_100mrad_pelz_tiltmap-002.npy
+#     # tilt tableau datasets, dectris, 4D stack (required, type: Path_fr)
+#     unwarp_warp: Spectrum Image (Dectris)_100mrad_pelz_tiltmap.npy
+#     # if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line (type: bool, default: true)
+#     find_points_ref: true
 
-    # if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line (type: bool, default: true)
-    find_points_warp: true
+#     # if false, the code expects a text file of beam positions in the format 'x_pos y_pos', with each location a new line (type: bool, default: true)
+#     find_points_warp: true
 
-    # how far apart (in pixels) do the detected disks in the ronchigram stack need to be, to be considered a valid disk (type: int, default: 20)
-    dist_min: 20
+#     # how far apart (in pixels) do the detected disks in the ronchigram stack need to be, to be considered a valid disk (type: int, default: 20)
+#     dist_min: 20
 
-    # look at the histogram to figure out the correct number (type: bool, default: false)
-    plot_dist_min_flag: false
+#     # look at the histogram to figure out the correct number (type: bool, default: false)
+#     plot_dist_min_flag: false
 
-    # this is slow, so return to false once the parameters above and below are found. (type: bool, default: false)
-    plot_flag: false
+#     # this is slow, so return to false once the parameters above and below are found. (type: bool, default: false)
+#     plot_flag: false
 
-    # the radius used in im_tools.mask_circ. 15 good for 100mrad_pelz, 30 good for DiffRef (type: int, default: 15)
-    radius_ref: 15
+#     # the radius used in im_tools.mask_circ. 15 good for 100mrad_pelz, 30 good for DiffRef (type: int, default: 15)
+#     radius_ref: 15
 
-    # the radius used in im_tools.mask_circ (type: int, default: 20)
-    radius_warp: 20
+#     # the radius used in im_tools.mask_circ (type: int, default: 20)
+#     radius_warp: 20
 
-    # threshhold value for im_tools.com_im (type: int, default: 45)
-    thresh_ref: 45
+#     # threshhold value for im_tools.com_im (type: int, default: 45)
+#     thresh_ref: 45
 
-    # threshhold value for im_tools.com_im (type: int, default: 4)
-    thresh_warp: 4
+#     # threshhold value for im_tools.com_im (type: int, default: 4)
+#     thresh_warp: 4
 
-    # this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp (type: bool, default: false)
-    use_json: false
+#     # this is currently in beta and not to be used without explanation from Tom, in which order the data should be processsed. These require variables defined from find_points_ref and find_points_warp (type: bool, default: false)
+#     use_json: true
 
-    # this is currently in beta (type: Path_frw_skip_check, default: null)
-    precomputed_json: /testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum
-      Image (Dectris)_100mrad_pelz_tiltmap.json
+#     # this is currently in beta (type: Path_frw_skip_check, default: null)
+#     precomputed_json: /testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data/Spectrum
+#       Image (RonchiCam)_100mrad_pelz_tiltmap.json
 
-    # save dewarping parameters once all are successfully found as text files in the folder (type: bool, default: false)
-    save_all_precompute: true
+#     # save dewarping parameters once all are successfully found as text files in the folder (type: bool, default: false)
+#     save_all_precompute: true
 
-    # amount of cores to be used (required, type: int)
-    cpu_count: 20
+#     # amount of cores to be used (required, type: int)
+#     cpu_count: 20
 
-  unwarp_apply:
-    # amount of cores to be used (required, type: int)
-    cpu_count: 20
+#   unwarp_apply:
+#     # amount of cores to be used (required, type: int)
+#     cpu_count: 20
 
 adorym_workflow:
   make_adorym_data:
     # diffraction pattern binning (type: int, default: 4)
     bin_Factor: 1 #TODO
 
-    # list defining how many subarrays to split the data into (type: list of 2 int, default: [1, 1])
-    #split_in_subarray_num_list: [2,2]
+    # list defining how big the subarrays/tiles are (pixels, first two dimesions) if same as scan_pos_list aka original first two dim of data no tilling is performed ([0,0] for this). Uses https://github.com/the-lay/tiler (type: list of 2 int, default: [0,0])
+    split_in_subarray_size: [0,0]
+
+    # Specifies overlap between subarrays/tiles. If integer, overlap is in pixels. If float, a percentage of a tile_shape will overlap (from 0.0 to 1.0). Uses https://github.com/the-lay/tiler (type: (int, float) default: 0)
+    overlap: 0
     
     # crop or pad the diffraction pattern, negative pads with edge values, positives crops. No combination supported yet [crop_pad_row_first, crop_pad_row_last, crop_pad_colum_first, crop_pad_colum_last] (type: list of 4 int, default: [0, 0, 0, 0])
     crop_pad_diffraction: [0,0,0,0]
@@ -75,7 +78,7 @@ adorym_workflow:
     rotate_180: true
 
     # the pixel size of the reconstruction in angstroms (type: float)
-    px_size_ang: 0
+    px_size_ang: # wrong? 1.035809e-11
 
     # start with "_"!, parameters will be the autoappended (type: str, default: _adorym_original)
     out_name_append: _adorym_original_shifted
@@ -107,8 +110,8 @@ adorym_workflow:
     theta_end : 0
     n_theta : 1
     theta_downsample : 1
-    n_epochs : 400 # for testing
-    #obj_size : (x,y,1) # see make_adorym_positions.N_scan_
+    n_epochs : 1 # for testing
+    obj_size : (0,0,1) # # x,y configured in make_*_data
     alpha_d : 0
     alpha_b : 0
     gamma : 0

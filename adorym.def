@@ -8,7 +8,7 @@ From: nvcr.io/nvidia/pytorch:22.04-py3
     AUTHOR Tom Pekin & Pablo Fernandez Robledo
 
 %post
-    conda install -c conda-forge dxchange pandas=1.4 autograd=1.5
+    conda install -c conda-forge dxchange=0.1.7 pandas=1.4 autograd=1.5
     #dxchange does pandas-1.2.3
     git clone https://github.com/tcpekin/adorym.git 
     #cd adorym

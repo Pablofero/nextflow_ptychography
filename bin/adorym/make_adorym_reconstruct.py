@@ -3,8 +3,9 @@ import numpy as np
 
 params={}
 fname = 'something_went_wrong' # some default to catch problems
-shape_ = [0,0]
+obj_shape_ = [0,0]
 probe_size_ = [1e6,1e6] # some default to catch problems
+pos_len = 0
 for ste_name,set_conf in zip(sys.argv[1:-1:2],sys.argv[2::2]):
 	# print(ste_name,set_conf)
 	if ste_name =='--fname':
@@ -12,8 +13,16 @@ for ste_name,set_conf in zip(sys.argv[1:-1:2],sys.argv[2::2]):
 		params[ste_name.lstrip('--')] = "\'"+set_conf+"\'"
 	elif ste_name =='--probe_pos':
 		params[ste_name.lstrip('--')] = "np.load(\'"+set_conf+"\')" # np.flipud(np.fliplr(
+		pos_len = np.load(set_conf).shape[0]
 		# params[ste_name.lstrip('--')] = "np.load(\'"+set_conf+"\')"
 		# params[ste_name.lstrip('--')] = "np.load(\'"+"/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data_anton/positions_set_y_reversed_x_reversed.npy"+"\')"
+	elif ste_name == "--minibatch_size":
+		win = 1
+		for i in range(int(set_conf),0,-1):
+			if pos_len%i==0:
+				win = i
+				break
+		params[ste_name.lstrip('--')] = win
 	elif(ste_name=='--beamstop'):
 		if set_conf != 'None':
 			params[ste_name.lstrip('--')] = "np.load(\'"+set_conf+"\')"
@@ -21,12 +30,14 @@ for ste_name,set_conf in zip(sys.argv[1:-1:2],sys.argv[2::2]):
 		probe_size_ = np.load(set_conf)
 		params[ste_name.lstrip('--')] = tuple(probe_size_)
 	elif ste_name =='--shape':
-		shape_ = np.load(set_conf)
-		shape_ = (np.load(set_conf)*1.1).astype(np.int)
+		obj_shape_ = np.load(set_conf).astype(int)
 	elif(ste_name=='--obj_size'):
 			# params[ste_name.lstrip('--')] = dxchange.read_tiff(fname).shape, params[ste_name.lstrip('--')] #"np.load(\'"+set_conf+"\')"
-			z = np.fromstring(set_conf.strip('(').lstrip(')'),dtype=int,sep=',')
-			params[ste_name.lstrip('--')] = (*shape_, z[-1])# dxchange.read_tiff(fname).shape, params[ste_name.lstrip('--')] #"np.load(\'"+set_conf+"\')"
+			get_z = np.fromstring(set_conf.strip('(').lstrip(')'),dtype=int,sep=',')# from "(x,y,1)" to get the array [x,y,z]
+			params[ste_name.lstrip('--')] = (*obj_shape_, get_z[-1])# dxchange.read_tiff(fname).shape, params[ste_name.lstrip('--')] #"np.load(\'"+set_conf+"\')"
+	elif ste_name =='--output_folder':
+		fname = set_conf 
+		params[ste_name.lstrip('--')] = "\'"+fname+"\'" # put some ' so it gets read as a string
 	else:
 		if(set_conf=='false' or set_conf=='true'):
 			params[ste_name.lstrip('--')] = set_conf.title()

@@ -16,14 +16,14 @@ expandedParameters = toArgs1(moduleParams) // create a string with the parameter
 process make_adorym_reconstruct {
         publishDir "$params.outputfolder/${datasets_h5.getName().replaceAll(/.npy/,"")}/adorym", mode: 'copy' // location to save the outputs, copying as the default is to symbolically link!
         input:
-            tuple path(datasets_h5) , path(probe_positions),  path(shape)  //see https://www.nextflow.io/docs/latest/process.html?#input-of-type-path
+            tuple path(datasets_h5) , path(probe_positions),  path(shape), path(offset), path(slice_no_overlap),path(tile_no_overlab_sub_shape)   //see https://www.nextflow.io/docs/latest/process.html?#input-of-type-path
             //path datasets_h5
             // path probe_positions
-            path beamstop 
+            path beamstop  
             path probe_size
         output: // for understanding path: https://www.nextflow.io/docs/latest/process.html?#output-path
                 // emit: define a name identifier that can be used to reference the channel in the external scope, see also https://www.nextflow.io/docs/latest/dsl2.html?highlight=emit#process-named-output
-            tuple path("*.h5", includeInputs: true) , path("beam_pos_*.npy", includeInputs: true),  path("tile_*_shape.npy", includeInputs: true), emit: datasets_h5
+            tuple path("*.h5", includeInputs: true) , path("beam_pos_*.npy", includeInputs: true),  path("tile_*_shape_pixels.npy", includeInputs: true), path("tile_*_offset.npy", includeInputs: true), path("tile_*_slice_no_overlap.npy", includeInputs: true), path("tile_*_no_overlab_sub_shape.npy", includeInputs: true) , emit: datasets_h5
             // path {"*_beamstop.npy","None"} , includeInputs: true , optional: true, emit: beamstop
             path "*_beamstop.npy" , includeInputs: true , optional: true, emit: beamstop
             path "probe_size.npy" , includeInputs: true , emit: probe_size
@@ -31,7 +31,7 @@ process make_adorym_reconstruct {
         script: //default Bash, see https://www.nextflow.io/docs/latest/process.html#script
             println "$datasets_h5"
             """
-            python $projectDir/bin/adorym/make_adorym_reconstruct.py --fname $datasets_h5 --probe_pos $probe_positions --probe_size $probe_size --shape $shape $expandedParameters --output_folder '"recon"' --beamstop $beamstop  # beamstop explanation, if '/None' is passed  do nothing else add the argument --beamstop $beamstop'
+            python $projectDir/bin/adorym/make_adorym_reconstruct.py --fname $datasets_h5 --probe_pos $probe_positions --probe_size $probe_size --shape $shape --output_folder recon_`basename $shape _shape_pixels.npy` $expandedParameters --beamstop $beamstop  # beamstop explanation, if '/None' is passed  do nothing else add the argument --beamstop $beamstop
             """
     }// $obj_size
 

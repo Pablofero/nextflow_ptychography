@@ -1,8 +1,10 @@
 from pathlib import Path
 import sys
 import os.path
+from typing import Union
 
 import h5py
+from tiler import Tiler
 import matplotlib.pyplot as plt
 import numpy as np
 import multiprocessing as mp
@@ -36,7 +38,8 @@ parser.add_argument("--scan_Step_Size_y_A", type=float, help="")
 parser.add_argument("--rot_ang_deg", type=float, help="rotation angle in degrees", default="0")
 parser.add_argument("--px_size_ang_m", type=float, help="the pixel size of the reconstruction in meters",default=1e-10)
 ###
-parser.add_argument("--split_in_subarray_num_list", type=int, nargs=2,help="list defining how many subarrays to split the data into", default=[1,1])
+parser.add_argument("--split_in_subarray", type=int, nargs=2,help="how many tiles in the n rows x m colums, (n, m).", default=[1,1])
+parser.add_argument("--overlap",type=int, help="Specifies overlap between subarrays, overlap is in pixels.", default=0)
 parser.add_argument("--probe_size", type=int, nargs=2,help="Size of the electron probe", default=[-1,-1])
 params = parser.parse_args()
 
@@ -64,12 +67,10 @@ else:
     raise ValueError('Padding and cropping at the same time is not allowed... yet. Please change crop_ parameters such that they are all positive or negative, not mixed.')
 cpu_count = params["cpu_count"]
 binFactor = params['bin_Factor']
-split_in_subarray_num = params['split_in_subarray_num_list']
 
 Scan_pos = params['scan_pos_list'][0]*params['scan_pos_list'][1]
 Scan_Pos_str = str(params['scan_pos_list']).replace('[','').replace(']','').replace(', ','*')
 # Scan_pos = eval(params['Scan_Pos_str']);Scan_pos_str = params['Scan_Pos_str'].replace('/','⁄')
-np.save('total_tiles_shape.npy',np.array(params['scan_pos_list']),)
 size=values.shape[2]*values.shape[3]*Scan_pos
 out_name_append = params['out_name_append']
 if out_name_append[0] != '_':
@@ -82,56 +83,240 @@ out_name_append+='_scan_pos'+Scan_Pos_str
 out_name_append+='_size'+str(size)
 print('out_name_append=',out_name_append)
 
+split_in_subarray_num = params['split_in_subarray']
+if split_in_subarray_num == [0,0]:
+    split_in_subarray_num =  [params['scan_pos_list'][0],params['scan_pos_list'][1]]
+overlap = params['overlap']
 
 
-
-def split_flatten_save(arr, nm,original_2d_shape, name,safe_HDF5=False,scanStepSize=None,probe_offset=None):
+# def split_flatten_save(arr, nm,original_2d_shape, name,safe_HDF5=False,scanStepSize=None,probe_offset=None):
+#     '''
+#     Splits first two dimensions of array arr into nm[0]*nm[1] sub arrays, flaten the first dimension, and saves them as name_#
+#     arr: array should be shape = (a, b,...) with a = 1, but should work for a =/= 1
+#     nm: tuple, array, cut in n x m tiles
+#     original_2d_shape: 2 tuple/array with the dimensions of the pre-flatten array's first two dimensions
+#     scanStepSize: np.array, shape:(2), in pixels
+#     probe_offset: adoryms probe is not centered and has (0,0) in the upper left corner, thus a offset is needed to shift the position
+#     '''
+#     # plt.clf()
+#     # fig,ax = plt.subplots(n, m,squeeze=False)
+#     # max_val = arr.max()
+#     n,m = nm
+#     print('n m =',n,m)
+#     if len(arr.shape)>2:
+#         arr_ = np.reshape(arr,(*original_2d_shape,*arr.shape[2:]))
+#     else:
+#         arr_ = np.reshape(arr,(*original_2d_shape,*arr.shape[1:]))
+#     s  = np.array_split(arr_,n) # returns list
+#     counter = 0
+#     for i in range(len(s)):
+#         s2 = np.array_split(s[i],m,axis=1) # returns list
+#         for j in range(len(s2)):
+#             data_shape_2d = s2[j].shape[0:2]
+#             data_ = np.reshape(s2[j],(1,s2[j].shape[0]*s2[j].shape[1],*s2[j].shape[2:]))
+#             if safe_HDF5:
+#                 name_ = name+'_'+str(counter)+'.h5'
+#                 with h5py.File(name_,'w') as data_file:
+#                     data_file.create_dataset('exchange/data', data=data_)
+#                 np.save('tile_'+str(counter)+'_shape.npy', np.int32(np.ceil((data_shape_2d*scanStepSize))),allow_pickle=False)
+#                 print('tile_'+str(counter)+'_shape.npy without stepsize:', data_shape_2d,'tile_'+str(counter)+'_shape.npy with stepsize:',np.int32(np.ceil(data_shape_2d*scanStepSize)), '\ts2[j].shape:',s2[j].shape)
+#             else:
+#                 name_ = name+'_'+str(counter)+'.npy'
+#                 data_s = np.squeeze(data_)
+#                 position_top_left = data_s.min(axis=0)
+#                 np.save(name_, data_s-(position_top_left+probe_offset))
+#                 np.save('tile_'+str(counter)+'_offset.npy', (position_top_left+probe_offset),allow_pickle=False)
+#             counter += 1
+#             #s2[j] is now one of the subarrays, the other dimensions are untouched (aka. third, fourth..)
+#             # ax[i][j].imshow(s2[j].mean(axis=(-1,-2), vmin=0., vmax=max_val,aspect="auto")
+#             # ax[i][j].set_xlabel(str(i)+' '+str(j))
+def get_width_height_positions(arr):
+    ''''
+    arr: array with [0] = [x,y]
+    returns: [width, height]
     '''
-    Splits first two dimensions of array arr into nm[0]*nm[1] sub arrays, flaten the first dimension, and saves them as name_#
+    xmin, xmax = np.min(arr[:,0]), np.max(arr[:,0])
+    ymin, ymax = np.min(arr[:,1]), np.max(arr[:,1])
+    plt.plot([xmin, xmax],[ymin, ymax])
+    return np.array([xmax-xmin,ymax-ymin])
+
+# def split_flatten_save_h5(arr, nm, overlap,original_2d_shape, name):
+#     '''
+#     Splits first two dimensions of array arr into n sub arrays, flaten the first dimension, and saves them as name_#
+#     arr: array should be shape = (a, b,...) with a = 1, but should work for a =/= 1
+#     nm: tuple, array, cut in tiles with shape n x m
+#     overlap: Specifies overlap between subarrays/tiles. If integer, overlap is in pixels. If float, a percentage of a tile_shape will overlap (from 0.0 to 1.0). Uses https://github.com/the-lay/tiler 
+#     original_2d_shape: 2 tuple/array with the dimensions of the pre-flatten array's first two dimensions
+#     '''
+#     print('split_flatten_save_h5\ntiles shape max =',nm,'\noverlap = ', overlap)
+
+#     arr_ = np.reshape(arr,(*original_2d_shape,*arr.shape[2:4]))
+#     tiler = Tiler(data_shape=arr_.shape,
+#               tile_shape=(*nm,*arr_.shape[2:4]),
+#               overlap=overlap,
+#               mode='irregular')
+
+#     for tile_id, tile in tiler.iterate(arr_,copy_data=False):
+#         data_ = np.reshape(tile,(1,tile.shape[0]*tile.shape[1],*tile.shape[2:]))
+#         name_ = name+'_'+str(tile_id)+'.h5'
+#         with h5py.File(name_,'w') as data_file:
+#             data_file.create_dataset('exchange/data', data=data_)
+
+# def split_flatten_save_probe(arr, nm, overlap,original_2d_shape, name,probe_offset=None,scanStepSize=0):
+#     '''
+#     Splits first two dimensions of array arr into n sub arrays, flaten the first dimension, and saves them as name_#
+#     arr: array should be shape = (a, b,...) with a = 1, but should work for a =/= 1
+#     nm: tuple, array, cut in tiles with shape n x m
+#     original_2d_shape: 2 tuple/array with the dimensions of the pre-flatten array's first two dimensions
+#     probe_offset: adoryms probe is not centered and has (0,0) in the upper left corner, thus a offset is needed to shift the position (probe_offset=probe_size/2)
+#     scanStepSize: np.array, shape:(2), to convert to pixels
+#     '''
+#     print('split_flatten_save_probe\ntiles shape max =',nm,",\noverlap: ",overlap)
+#     arr_ = np.reshape(arr,(*original_2d_shape,*arr.shape[1:]))
+#     tiler = Tiler(data_shape=arr_.shape,
+#               tile_shape=(*nm,*arr_.shape[2:]),
+#               overlap=overlap,
+#               mode='irregular')
+    
+#     param_extra_space = 5#2
+    
+#     for tile_id, tile in tiler.iterate(arr_,copy_data=False):
+#         data_ = np.reshape(tile,(1,tile.shape[0]*tile.shape[1],*tile.shape[2:]))
+#         name_ = name+'_'+str(tile_id)+'.npy'
+#         data_s = np.squeeze(data_)
+#         position_top_left = data_s.min(axis=0)
+#         small_corrections = np.array([-1,-1])*param_extra_space*scanStepSize
+#         np.save(name_, data_s-(position_top_left+probe_offset+small_corrections))
+#         np.save('tile_'+str(tile_id)+'_offset.npy', (position_top_left+probe_offset+small_corrections),allow_pickle=False)
+        
+
+#         shape_bounding_box = get_width_height_positions(data_s)#.shape[0:2]
+#         print('shape_bounding_box= ',shape_bounding_box)
+#         shape_bounding_box+=2*param_extra_space*scanStepSize #TODO extra padding, implement parameter
+#         print('shape_bounding_box with extra= ',shape_bounding_box,'|to int= ',np.int32(np.ceil(shape_bounding_box)))
+#         np.save('tile_'+str(tile_id)+'_shape_pixels.npy', np.int32(np.ceil(shape_bounding_box)),allow_pickle=False)
+#         # np.save('tile_'+str(tile_id)+'_shape_pixels.npy', np.int32(np.ceil((shape_bounding_box))),allow_pickle=False)
+#         # print('tile_'+str(tile_id)+'_shape.npy without stepsize:', shape_bounding_box,'tile_'+str(tile_id)+'_shape.npy with stepsize and 1 border:',np.int32(np.ceil((np.one((2))*2+shape_bounding_box)*scanStepSize)), '\ttile.shape:',tile.shape)
+def split_flatten_save_h5(arr, nm, overlap,original_2d_shape, name,debugflag=False):
+    '''
+    Splits first two dimensions of array arr into n sub arrays, flaten the first dimension, and saves them as name_#
     arr: array should be shape = (a, b,...) with a = 1, but should work for a =/= 1
-    nm: tuple, array, cut in n x m tiles
+    nm: tuple, array, how many tiles in the rows x colums aka.  n x m
+    overlap: Specifies overlap between subarrays/tiles. Overlap is in pixels
     original_2d_shape: 2 tuple/array with the dimensions of the pre-flatten array's first two dimensions
-    scanStepSize: np.array, shape:(2), in pixels
-    probe_offset: adoryms probe is not centered and has (0,0) in the upper left corner, thus a offset is needed to shift the position
     '''
-    # plt.clf()
-    # fig,ax = plt.subplots(n, m,squeeze=False)
-    # max_val = arr.max()
-    n,m = nm
-    print('n m =',n,m)
-    if len(arr.shape)>2:
-        arr_ = np.reshape(arr,(*original_2d_shape,*arr.shape[2:]))
-    else:
-        arr_ = np.reshape(arr,(*original_2d_shape,*arr.shape[1:]))
-    s  = np.array_split(arr_,n) # returns list
-    counter = 0
-    for i in range(len(s)):
-        s2 = np.array_split(s[i],m,axis=1) # returns list
-        for j in range(len(s2)):
-            data_shape_2d = s2[j].shape[0:2]
-            data_ = np.reshape(s2[j],(1,s2[j].shape[0]*s2[j].shape[1],*s2[j].shape[2:]))
-            if safe_HDF5:
-                name_ = name+'_'+str(counter)+'.h5'
-                with h5py.File(name_,'w') as data_file:
-                    data_file.create_dataset('exchange/data', data=data_)
-                np.save('tile_'+str(counter)+'_shape.npy', np.int32(np.ceil((data_shape_2d*scanStepSize))),allow_pickle=False)
-                print('tile_'+str(counter)+'_shape.npy without stepsize:', data_shape_2d,'tile_'+str(counter)+'_shape.npy with stepsize:',np.int32(np.ceil(data_shape_2d*scanStepSize)), '\ts2[j].shape:',s2[j].shape)
+    print('split_flatten_save_h5\ntiles rows x colums=',nm,'\noverlap in pixels = ', overlap)
+    nm = np.array(nm)
+    arr_ = np.reshape(arr,(*original_2d_shape,*arr.shape[2:])) # de-flaten array so first dimension correspond to realspace
+    slices = []
+    original_2d_shape = np.array(original_2d_shape)
+    nm = np.array(nm)
+    dx, dy = original_2d_shape//nm
+    restx,resty = original_2d_shape%nm
+    addrestx, addresty = 0,0
+    for x in range(nm[0]):
+        if x == nm[0]-1:
+            addrestx=restx
+        else:
+            addrestx=0
+        for y in range(nm[1]):
+            if y == nm[1]-1:
+                addresty=resty
             else:
-                name_ = name+'_'+str(counter)+'.npy'
-                data_s = np.squeeze(data_)
-                position_top_left = data_s.min(axis=0)
-                np.save(name_, data_s-(position_top_left+probe_offset))
-                np.save('tile_'+str(counter)+'_offset.npy', (position_top_left+probe_offset),allow_pickle=False)
-            counter += 1
-            #s2[j] is now one of the subarrays, the other dimensions are untouched (aka. third, fourth..)
-            # ax[i][j].imshow(s2[j].mean(axis=(-1,-2), vmin=0., vmax=max_val,aspect="auto")
-            # ax[i][j].set_xlabel(str(i)+' '+str(j))
-            
+                addresty=0
+            #bound checking due to overlap
+            lowerx= max(x*dx-overlap,0)
+            maxx  = min((x+1)*dx+addrestx+overlap,original_2d_shape[0])
+            lowery= max(y*dy-overlap,0)
+            maxy  = min((y+1)*dy+addresty+overlap,original_2d_shape[1])
+            slices.append(np.s_[lowerx:maxx,lowery:maxy])
+    debug = []
+    debug_shapes = []
+    for slice_id, slice_ in zip(range(len(slices)),slices):
+        tile = arr_[slice_]
+        if debugflag: 
+            debug_shapes.append(tile.shape)
 
+        data_ = np.reshape(tile,(1,tile.shape[0]*tile.shape[1],*tile.shape[2:]))
+        name_ = name+'_'+str(slice_id)+'.h5'
+        debug.append(data_)
+        print(slice_)
+        with h5py.File(name_,'w') as data_file:
+            data_file.create_dataset('exchange/data', data=data_)
+    if debugflag: 
+        return debug,debug_shapes
 
+def split_flatten_save_probe(arr, nm, overlap,original_2d_shape, name,probe_offset=None,scanStepSize=0,debugflag=False):
+    '''
+    Splits first two dimensions of array arr into n sub arrays, flaten the first dimension, and saves them as name_#
+    arr: array should be shape = (a, b,...) with a = 1, but should work for a =/= 1
+    nm: tuple, array, cut in tiles with shape n x m
+    overlap: Specifies overlap between subarrays/tiles. Overlap is in pixels
+    original_2d_shape: 2 tuple/array with the dimensions of the pre-flatten array's first two dimensions
+    probe_offset: adoryms probe is not centered and has (0,0) in the upper left corner, thus a offset is needed to shift the position (probe_offset=probe_size/2)
+    scanStepSize: np.array, shape:(2), to convert to pixels
+    '''
+    print('split_flatten_save_probe\ntiles shape max =',nm,",\noverlap: ",overlap)
+    arr_ = np.reshape(arr,(*original_2d_shape,*arr.shape[1:]))
+    slices = []
+    slices_no_overlap_sub_shape = []
+    original_2d_shape = np.array(original_2d_shape)
+    nm = np.array(nm)
+    dx, dy = original_2d_shape//nm
+    restx,resty = original_2d_shape%nm
+    addrestx, addresty = 0,0
+    for x in range(nm[0]):
+        if x == nm[0]-1:
+            addrestx=restx
+        else:
+            addrestx=0
+        for y in range(nm[1]):
+            if y == nm[1]-1:
+                addresty=resty
+            else:
+                addresty=0
+            # bound checking due to overlap
+            lowerx= max(x*dx-overlap,0)
+            maxx  = min((x+1)*dx+addrestx+overlap,original_2d_shape[0])
+            lowery= max(y*dy-overlap,0)
+            maxy  = min((y+1)*dy+addresty+overlap,original_2d_shape[1])
+            slices.append(np.s_[lowerx:maxx,lowery:maxy])
 
+            # calculate local offsets for joining a later stage
+            exit(42)
+            lowerx= max(x*dx,0)-lowerx
+            maxx  = min((x+1)*dx+addrestx,original_2d_shape[0])-maxx
+            lowery= max(y*dy,0)-lowery
+            maxy  = min((y+1)*dy+addresty,original_2d_shape[1])-maxy-
+            slices_no_overlap_sub_shape.append(np.array([lowerx,maxx,lowery,maxy]))
+            exit(42)
+    debug = []
+    debug_shapes = []
 
+    param_extra_space = 5#2
 
+    for slice_id, slice_, slice_no_overlap_ in zip(range(len(slices)),slices,slices_no_overlap_sub_shape):
+        tile = arr_[slice_]
+        np.save('tile_'+str(slice_id)+'_no_overlab_sub_shape.npy', tile.shape, allow_pickle=False)
+        data_ = np.reshape(tile,(1,tile.shape[0]*tile.shape[1],*tile.shape[2:]))
+        name_ = name+'_'+str(slice_id)+'.npy'
+        data_s = np.squeeze(data_)
+        position_top_left = data_s.min(axis=0)
+        small_corrections = np.array([-1,-1])*param_extra_space*scanStepSize
+        offset = position_top_left+probe_offset+small_corrections
+        np.save(name_, data_s-offset)
+        np.save('tile_'+str(slice_id)+'_offset.npy', offset,allow_pickle=False)
+        np.save('tile_'+str(slice_id)+'_slice_no_overlap.npy', slice_no_overlap_,allow_pickle=False)
+
+        shape_bounding_box = get_width_height_positions(data_s)#.shape[0:2]
+        print('shape_bounding_box= ',shape_bounding_box)
+        shape_bounding_box+=2*param_extra_space*scanStepSize #TODO extra padding, implement parameter
+        print('shape_bounding_box with extra= ',shape_bounding_box,'|to int= ',np.int32(np.ceil(shape_bounding_box)))
+        np.save('tile_'+str(slice_id)+'_shape_pixels.npy', np.int32(np.ceil(shape_bounding_box)),allow_pickle=False)
+        # np.save('tile_'+str(slice_id)+'_shape_pixels.npy', np.int32(np.ceil((shape_bounding_box))),allow_pickle=False)
+        # print('tile_'+str(slice_id)+'_shape.npy without stepsize:', shape_bounding_box,'tile_'+str(slice_id)+'_shape.npy with stepsize and 1 border:',np.int32(np.ceil((np.one((2))*2+shape_bounding_box)*scanStepSize)), '\ttile.shape:',tile.shape)
+    if debugflag: 
+        return debug,debug_shapes
 ####################################### calculate probe positions ########################################### 
 N_scan_x=params['scan_pos_list'][0]
 N_scan_y=params['scan_pos_list'][1]
@@ -142,7 +327,7 @@ px_size_m = params['px_size_ang_m']
 scanStepSize_arr = np.array([scan_step_size_x_m,scan_step_size_y_m])/px_size_m
 print('scanStepSize_arr: ',scanStepSize_arr)
 
-out_name = 'beam_pos_'+str(rot_ang)+'deg_'
+out_name = 'beam_pos_'+str(params['rot_ang_deg'])+'deg_'
 out_name += 'Scan'+str(N_scan_x)+'x'+str(N_scan_y)+'_'
 out_name += 'StepsSize'+str(scan_step_size_x_m)+'x'+str(scan_step_size_y_m)
 
@@ -163,20 +348,27 @@ print(xy)
 xy_rot = R @ xy
 
 plt.figure(10,clear=True)
-plt.scatter(xy[0,:], xy[1,:])
-plt.scatter(xy_rot[0,:], xy_rot[1,:])
-plt.savefig('beam_pos.png')
+plt.scatter(xy[0,:], xy[1,:],label='original')
+plt.scatter(xy_rot[0,:], xy_rot[1,:],label='rotated')
+plt.xlabel('m')
+plt.ylabel('m')
+plt.title('no probe offset')
+plt.legend()
+plt.savefig('beam_pos_no_probe_offset.png')
 
 xy_rot /= px_size_m
 
 xy_rot = xy_rot -  np.min(xy_rot, axis=1)[:,None]
 
 plt.figure(11, clear=True)
+plt.grid()
+plt.xlabel('px')
+plt.ylabel('px')
 plt.scatter(xy_rot[0,:], xy_rot[1,:], c=np.linspace(0,1,N_scan_x*N_scan_y))
 plt.savefig('beam_pos2.png')
 plt.clf()
 # print(xy_rot)
-#savin done at the end of document
+#saving done at the end of document
 ####################################### calculate probe positions END ########################################### 
 
 values_shape_2d = values.shape[0:2]
@@ -227,13 +419,15 @@ values_new = values_new_ctypes_nparray
 #         values_new[0,i,:,:] = spim.shift(im_tools.bin_image(values[0,i,:,:], binFactor), shifts, order=1)
 
 print('final mean COM')
-im_tools.com_im(np.mean(values_new, axis=(0,1)), thresh=1, plot_flag=True)
-
+x_cm,y_cm = im_tools.com_im(np.mean(values_new, axis=(0,1)), thresh=1, plot_flag=True)
+plt.savefig('final_mean_COM_{}_{}.png'.format(x_cm,y_cm))
 
 
 # Write data to HDF5
 # fname = path.parent / (path.stem+out_name_append+'.h5')
-split_flatten_save(values_new, split_in_subarray_num ,values_shape_2d, out_name_append, safe_HDF5=True,scanStepSize=scanStepSize_arr)# arr, nm,original_2d_shape, name,safe_HDF5=False,scanStepSize=None
+np.save('total_tiles_shape.npy',np.array(values_shape_2d),)
+np.savetxt('rot_angle.txt',np.array([rot_ang]))
+split_flatten_save_h5(values_new, split_in_subarray_num,overlap ,values_shape_2d, out_name_append)# arr, nm,original_2d_shape, name,safe_HDF5=False,scanStepSize=None
 # with h5py.File(fname,'w') as data_file:
 #     data_file.create_dataset('exchange/data', data=values_new)
 #     data_file.create_dataset('metadata/probe_pos_px', data=probe_pos_px)
@@ -253,4 +447,5 @@ else:
     probe_size = np.array(values_new.shape[-2:])
 np.save('probe_size.npy', probe_size)
 
-split_flatten_save(xy_rot.T, split_in_subarray_num , params['scan_pos_list'], out_name, probe_offset = probe_size/2)# arr, nm,original_2d_shape, name,safe_HDF5=False,scanStepSize=None
+split_flatten_save_probe(xy_rot.T, split_in_subarray_num,overlap , params['scan_pos_list'], out_name, probe_offset = probe_size/2, scanStepSize=scanStepSize_arr)# arr, nm,original_2d_shape, name,safe_HDF5=False,scanStepSize=None
+print('Done!')
