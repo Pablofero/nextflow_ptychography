@@ -17,10 +17,10 @@ process make_adorym_data {
 
         output: // for understanding path: https://www.nextflow.io/docs/latest/process.html?#output-path
                 // emit: define a name identifier that can be used to reference the channel in the external scope, see also https://www.nextflow.io/docs/latest/dsl2.html?highlight=emit#process-named-output
-            tuple path("*.h5") , path("beam_pos_*.npy"),  path("tile_*_shape_pixels.npy"), path("tile_*_offset.npy"), path("tile_*_slice_no_overlap.npy"), path("tile_*_no_overlab_sub_shape.npy"), emit: datasets_h5
+            tuple path("*.h5") , path("beam_pos_*.npy"),  path("tile_*_shape_pixels.npy"), path("tile_*_offset.npy"), path("tile_*_slice_no_overlap.npy"), path("tile_*_pos_shape.npy"), emit: datasets_h5
             path "*_beamstop.npy", emit: beamstop
             path "total_tiles_shape.npy", emit: total_tiles_shape
-            path "rot_angle.txt", emit: rot_angle
+            path "extra_vacuum_space.npy", emit: extra_vacuum_space
             path "probe_size.npy", emit: probe_size
             path "*.png", emit: debug_png optional true
         script: //default Bash, see https://www.nextflow.io/docs/latest/process.html#script

@@ -62,7 +62,7 @@ adorym_workflow:
     # list defining how big the subarrays/tiles are (pixels, first two dimesions) if same as scan_pos_list aka original first two dim of data no tilling is performed ([0,0] for this). Uses https://github.com/the-lay/tiler (type: list of 2 int, default: [0,0])
     split_in_subarray_size: [0,0]
 
-    # Specifies overlap between subarrays/tiles. If integer, overlap is in pixels. If float, a percentage of a tile_shape will overlap (from 0.0 to 1.0). Uses https://github.com/the-lay/tiler (type: (int, float) default: 0)
+    # Specifies overlap between subarrays, overlap is in positions. (type: int, default: 0)
     overlap: 0
     
     # crop or pad the diffraction pattern, negative pads with edge values, positives crops. No combination supported yet [crop_pad_row_first, crop_pad_row_last, crop_pad_colum_first, crop_pad_colum_last] (type: list of 4 int, default: [0, 0, 0, 0])
@@ -104,6 +104,9 @@ adorym_workflow:
 
     # rotation angle in degrees (type: float, default: 0)
     rot_ang_deg: 333.68
+
+    # How much vacuum should be put. Measured from the positions bounding box and in integer units of scan_Step_Size (type: int, default: 0)
+    extra_vacuum_space : 6
   
   make_adorym_reconstruct: # Adorym params settings, strings MUST be decorated like so: '"string"'
     theta_st : 0
@@ -158,4 +161,10 @@ adorym_workflow:
 
   adorym_reconstruct:
     test: a
-    
+  adorym_join:
+    #How much to delete from outside the tile (to be automated), expressed for now in arbitrary units") (type: int, default: 10)
+    clear_extend: 10
+    # How big should the windowing be, expressed for now in arbitrary units (type: int, default: 1)
+    half_window_lenght: 1
+    # What windowing function to smooth the overlap of the tiles. Choose from scipy.signal.windows.get_window (https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.windows.get_window.html#scipy.signal.windows.get_window) (type: str, default: hann)
+    window_name: hann

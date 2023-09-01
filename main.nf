@@ -10,7 +10,8 @@ params.output_folder = "output_"
 params.outputfolder = params.output_folder//+'_'+workflow.start+'_'+workflow.runName
 params.datafolder =  "./data"
 params.datasets = ""
-println("output_"+workflow.runName)
+println("run name: "+workflow.runName)
+// println("outputfolder: "+params.outputfolder)
 // conditionally add subprocesses/workflows
 do_unwarp_workflow = false
 if(params.find{ it.key == "unwarp_workflow" }){
@@ -25,7 +26,7 @@ if(params.find{ it.key == "adorym_workflow" }){
 }
 
 workflow {
-    println(params.outputfolder)
+    println("outputfolder: "+params.outputfolder)
     //create input channel(s)
     datasets = channel.fromPath(params.datafolder+'/'+params.datasets)
     if(do_unwarp_workflow){

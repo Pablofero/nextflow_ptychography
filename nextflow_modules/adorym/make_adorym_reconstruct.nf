@@ -23,7 +23,7 @@ process make_adorym_reconstruct {
             path probe_size
         output: // for understanding path: https://www.nextflow.io/docs/latest/process.html?#output-path
                 // emit: define a name identifier that can be used to reference the channel in the external scope, see also https://www.nextflow.io/docs/latest/dsl2.html?highlight=emit#process-named-output
-            tuple path("*.h5", includeInputs: true) , path("beam_pos_*.npy", includeInputs: true),  path("tile_*_shape_pixels.npy", includeInputs: true), path("tile_*_offset.npy", includeInputs: true), path("tile_*_slice_no_overlap.npy", includeInputs: true), path("tile_*_no_overlab_sub_shape.npy", includeInputs: true) , emit: datasets_h5
+            tuple path("*.h5", includeInputs: true) , path("beam_pos_*.npy", includeInputs: true),  path("tile_*_shape_pixels.npy", includeInputs: true), path("tile_*_offset.npy", includeInputs: true), path("tile_*_slice_no_overlap.npy", includeInputs: true), path("tile_*_pos_shape.npy", includeInputs: true) , emit: datasets_h5
             // path {"*_beamstop.npy","None"} , includeInputs: true , optional: true, emit: beamstop
             path "*_beamstop.npy" , includeInputs: true , optional: true, emit: beamstop
             path "probe_size.npy" , includeInputs: true , emit: probe_size

@@ -31,8 +31,7 @@ for ste_name,set_conf in zip(sys.argv[1:-1:2],sys.argv[2::2]):
 		params[ste_name.lstrip('--')] = tuple(probe_size_)
 	elif ste_name =='--shape':
 		obj_shape_ = np.load(set_conf).astype(int)
-	elif(ste_name=='--obj_size'):
-			# params[ste_name.lstrip('--')] = dxchange.read_tiff(fname).shape, params[ste_name.lstrip('--')] #"np.load(\'"+set_conf+"\')"
+	elif(ste_name=='--obj_size'): # x,y from --shape, z from yaml
 			get_z = np.fromstring(set_conf.strip('(').lstrip(')'),dtype=int,sep=',')# from "(x,y,1)" to get the array [x,y,z]
 			params[ste_name.lstrip('--')] = (*obj_shape_, get_z[-1])# dxchange.read_tiff(fname).shape, params[ste_name.lstrip('--')] #"np.load(\'"+set_conf+"\')"
 	elif ste_name =='--output_folder':

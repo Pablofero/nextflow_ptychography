@@ -35,7 +35,7 @@ workflow adorym_workflow {
                         datasets = make_adorym_data.datasets_h5.transpose() // by explicitly saving the output of the process we make it appear in the dag visualization
                         beamstop = make_adorym_data.beamstop.first()
                         total_tiles_shape = make_adorym_data.total_tiles_shape
-                        rot_angle = make_adorym_data.rot_angle
+                        extra_vacuum_space = make_adorym_data.extra_vacuum_space
                         probe_size = make_adorym_data.probe_size.first()
                         debug_png = make_adorym_data.debug_png
                         // probe_positions = make_adorym_data.pos
@@ -70,16 +70,19 @@ workflow adorym_workflow {
 
             if(params.adorym_workflow.do_adorym_reconstruct){
                 adorym_reconstruct =  adorym_reconstruct(datasets, beamstop_mar, py_executable)
-                        datasets = adorym_reconstruct.datasets_h5.transpose() // make_adorym_reconstruct.datasets_h5.transpose() 
-                        adorym_recon = adorym_reconstruct.recon.transpose()
+                        datasets = adorym_reconstruct.datasets_h5 // make_adorym_reconstruct.datasets_h5.transpose() 
             }else{
                 adorym_out_possibly_multiples=null
             }
             
             if(params.adorym_workflow.do_adorym_join){
-                adorym_out = adorym_join(datasets.collect(),total_tiles_shape,rot_angle, adorym_recon.toList())
+                adorym_out = adorym_join(datasets.collect{it[0]}, datasets.collect{it[2]}, datasets.collect{it[3]}, datasets.collect{it[4]}, datasets.collect{it[5]}, datasets.collect{it[6]},total_tiles_shape,extra_vacuum_space) //0 -> recon, 2->probe_positions, 3->tile_shape, 4->tile_offset, 5->slice_no_overlap, 6->tile_no_overlab_sub_shape
+                        // beta = adorym_out.beta
+                        // delta = adorym_out.delta
+                        // probes_mag = adorym_out.probe_mag
+                        // probes_phase = adorym_out.probe_phase
             }else{
-                adorym_out=adorym_no_join(adorym_recon)
+                //adorym_out=adorym_no_join(adorym_recon)
             }
 
         //  emit: //output of the (sub)workflow
