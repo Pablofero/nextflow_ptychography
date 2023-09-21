@@ -9,7 +9,7 @@ from matplotlib.collections import PatchCollection
 from PIL import Image
 from skimage import draw
 from scipy import signal
-px = 1/plt.rcParams['figure.dpi']  # pixel in inches
+px = 1/plt.rcParams['figure.dpi']  # pixel in inches aka  inches/dot
 
 Path_nocheck = path_type('rw', docstring='str pointing to a folder', skip_check=True)# for directories
 Path_f_nocheck =  path_type('frw', docstring='str pointing to a file', skip_check=True) # for files
@@ -52,6 +52,9 @@ fig.tight_layout()
 debug_view = np.zeros_like(base)
 debug_view2 = np.zeros_like(base)
 
+vmin = np.inf # saving min/max for normalisations  (later plotting)
+vmax = np.NINF # saving min/max for normalisations  (later plotting)
+
 for i in range(tiles_num):
     print('offset',i,np.load(params["tile_offset"][i]))
     pos.append(np.flip(np.load(params["positions"][i])+np.load(params["tile_offset"][i])+extra_vacuum_space,axis=1))
@@ -63,7 +66,9 @@ for i in range(tiles_num):
     offset_y = offsets[i][0]
     print('\toffset_x=',offset_x,'\toffset_x+tile_data.shape[0]=',offset_x+tile_data.shape[0],'\toffset_y=',offset_y,'\toffset_y+tile_data.shape[1]=',offset_y+tile_data.shape[1])
     base[i][offset_x:offset_x+tile_data.shape[0],offset_y:offset_y+tile_data.shape[1]] = tile_data#position data within the greater array
-    #
+    vmin = np.min([vmin,np.nanmin(tile_data)]) # saving min/max for normalisations  (later plotting)
+    vmax = np.max([vmax,np.nanmax(tile_data)]) # saving min/max for normalisations  (later plotting)
+
 for i in range(tiles_num):
     # We want to find the corners of the non-overlaping part of the data. We got the position that include overlap and we have _slice_no_overlap.npy that specifies in 2d, the np slice of the pos that corespond to that area.
     print('shape of pos: ',pos[i].shape)
@@ -97,11 +102,20 @@ for i in range(tiles_num):
     print(index_max,'\n',pos[i][index_max],'\n','\n')
     ax[1][0].scatter(pos[i][index_max][0][0],pos[i][index_max][0][1])
     ax[1][0].scatter(pos[i][index_max][1][0],pos[i][index_max][1][1])
-    polygon = Polygon([[pos[i][index_min][0][0],pos[i][index_min][0][1]],[pos[i][index_min][1][0],pos[i][index_min][1][1]],[pos[i][index_max][0][0],pos[i][index_max][0][1]],[pos[i][index_max][1][0],pos[i][index_max][1][1]]], closed=True)
+    xs = np.array([pos[i][index_min][0][0],pos[i][index_min][1][0],pos[i][index_max][0][0],pos[i][index_max][1][0]])
+    ys = np.array([pos[i][index_min][0][1],pos[i][index_min][1][1],pos[i][index_max][0][1],pos[i][index_max][1][1]])
+    polygon = Polygon(np.column_stack([xs, ys]), closed=True)
+    # polygon = Polygon([[pos[i][index_min][0][0],pos[i][index_min][0][1]],[pos[i][index_min][1][0],pos[i][index_min][1][1]],[pos[i][index_max][0][0],pos[i][index_max][0][1]],[pos[i][index_max][1][0],pos[i][index_max][1][1]]], closed=True)
     patches = np.array([polygon])
     p = PatchCollection(patches, alpha=0.4)
     p.set_array(np.array([50]))
     ax[1][0].add_collection(p)
+    text_pos_x = np.mean(xs) 
+    text_pos_y = np.mean(ys) 
+    # text_pos_x = np.mean([pos[i][index_min][0][0],pos[i][index_min][1][0],pos[i][index_max][0][0],pos[i][index_max][1][0]]) 
+    # text_pos_y = np.mean([pos[i][index_min][0][1],pos[i][index_min][1][1],pos[i][index_max][0][1],pos[i][index_max][1][1]]) 
+    ax[1][0].text(text_pos_x,text_pos_y,params["recon"][i].split("_")[-1], horizontalalignment='center', verticalalignment='center',color="white",alpha=0.5,fontsize=0.5*np.sqrt(2)*np.min(np.sqrt((text_pos_x-xs)**2+(text_pos_y-ys)**2)))
+
 
     ###
     # for a in np.ravel(ax):
@@ -237,44 +251,54 @@ for i in range(tiles_num):
     # base[i] += border_weight[i]
     #
     # print()
-# base[base==0.0]=np.median(base[base==np.nonzero])
-# # ax[0][0].imshow(base.sum(axis=0),cmap='gray')
-# ax[0][0].imshow(base.sum(axis=0),cmap='gray',vmin=0.0006224653334356844,vmax=0.0011421137023717165)#np.max(base))#
-ax00 = ax[0][0].imshow(base.sum(axis=0),cmap='gray')#,vmin=0.0003375167,vmax= 0.0014155804)#vmin=0.00085,vmax=0.00089#np.max(base))#
+ax00 = ax[0][0].imshow(base.sum(axis=0),cmap='gray',vmin=vmin,vmax=vmax,interpolation='none')
 fig.colorbar(ax00,ax=ax[0][0])
 ax[0][0].set_title('sum')
 
-ax01 = ax[0][1].imshow(base[0],cmap='gray')
+ax01 = ax[0][1].imshow(base[0],cmap='gray',vmin=vmin,vmax=vmax,interpolation='none')
 fig.colorbar(ax01,ax=ax[0][1])
-ax[0][1].set_title('tile')
-ax02 = ax[0][2].imshow(debug_view[0],cmap='gray')
+ax[0][1].set_title('one tile')
+ax02 = ax[0][2].imshow(debug_view[0],cmap='gray',interpolation='none')
 fig.colorbar(ax02,ax=ax[0][2])
-ax[0][2].set_title('debug_view')
-# ax[1][1].imshow(base[1],cmap='gray')
+ax[0][2].set_title('total_delete_weight (debug_view)')
+# ax[1][1].imshow(base[1],cmap='gray',interpolation='none')
 # ax[1][1].set_title('one')
-# ax[0][1].imshow(base[1],cmap='gray',vmin=0.0006224653334356844,vmax=np.max(base))#,vmax=0.0014570613857358694)
-ax10 = ax[1][0].imshow(base.sum(axis=0),cmap='gray')#,vmin=0.0003375167,vmax= 0.0014155804)#vmin=0.00085,vmax=0.00089
+# ax[0][1].imshow(base[1],cmap='gray',interpolation='none')
+ax10 = ax[1][0].imshow(base.sum(axis=0),cmap='gray',vmin=vmin,vmax=vmax,interpolation='none')
 fig.colorbar(ax10,ax=ax[1][0])
 ax[1][0].set_title('Overlap vis.')
-ax11 = ax[1][1].imshow(debug_view2[0],cmap='gray',vmax= 1)
+ax11 = ax[1][1].imshow(debug_view2[0],cmap='gray',interpolation='none')
 fig.colorbar(ax11,ax=ax[1][1])
-ax[1][1].set_title('debug_view2')
-ax12 = ax[1][2].imshow(total_weight,cmap='gray')
+ax[1][1].set_title('border_weight (debug_view2)')
+ax12 = ax[1][2].imshow(total_weight,cmap='gray',interpolation='none')
 fig.colorbar(ax12,ax=ax[1][2])
 ax[1][2].set_title('total_weight')#
 # plt.plot(offsets[:,1],offsets[:,0],'x')
 # print(np.min(base[base!=0.0]),np.max(base[0]))
 # ax[0][0].set_xlim(240,320)
 # ax[0][0].set_ylim(470,580)
-fig.savefig("debug_overview.png",bbox_inches='tight')
+fig.savefig("debug_overview.pdf",bbox_inches='tight')
 
+base_sum = base.sum(axis=0)
+#tiff
+im = Image.fromarray(base_sum)
+im.save("recon.tiff",format="TIFF")#,compression="tiff_lzw"
+
+#png
 fig_out, ax_out = plt.subplots(1,1,figsize=(base.shape[1]*px,base.shape[2]*px))
-ax_out_ = ax_out.imshow(base.sum(axis=0),cmap='gray')
+ax_out_ = ax_out.imshow(base_sum,cmap='gray',interpolation='none')
+plt.imsave("recon_for_vis.png",base_sum,format='png',cmap='gray',vmin=vmin,vmax=vmax)
 fig_out.colorbar(ax_out_,ax=ax_out)
-fig_out.savefig("out.png",bbox_inches='tight')
+fig_out.savefig("recon_colorbar.pdf",bbox_inches='tight')
 
-im = Image.fromarray(base.sum(axis=0))
-im.save("out.tiff",format="TIFF")#,compression="tiff_lzw"
+#png with normalisation taken from the raw tiles
+fig_out, ax_out = plt.subplots(1,1,figsize=(base.shape[1]*px,base.shape[2]*px))
+ax_out_ = ax_out.imshow(base_sum,cmap='gray',vmin=vmin,vmax=vmax)
+fig_out.colorbar(ax_out_,ax=ax_out)
+plt.imsave("recon_without_vacuum_norm_for_vis.png",base_sum,format='png',cmap='gray',vmin=vmin,vmax=vmax)
+fig_out.savefig("recon_without_vacuum_norm_colorbar.pdf",bbox_inches='tight')
+#save vmin/vmax
+np.savetxt("vmin_vmax.txt",[vmin,vmax])
 
 # total_tiles_shape = np.load(params["total_tiles_shape"])
 # print("total_tiles_shape: ", total_tiles_shape)
