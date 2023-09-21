@@ -17,12 +17,13 @@ for ste_name,set_conf in zip(sys.argv[1:-1:2],sys.argv[2::2]):
 		# params[ste_name.lstrip('--')] = "np.load(\'"+set_conf+"\')"
 		# params[ste_name.lstrip('--')] = "np.load(\'"+"/testpool/ops/pablofernandezrobledo/Workflows/nextflow_preprocessing/data_anton/positions_set_y_reversed_x_reversed.npy"+"\')"
 	elif ste_name == "--minibatch_size":
-		win = 1
-		for i in range(int(set_conf),0,-1):
-			if pos_len%i==0:
-				win = i
-				break
-		params[ste_name.lstrip('--')] = win
+		# win = 1
+		# for i in range(int(set_conf),0,-1):
+		# 	if pos_len%i==0:
+		# 		win = i
+		# 		break
+		# params[ste_name.lstrip('--')] = win
+		params[ste_name.lstrip('--')] = int(set_conf)
 	elif(ste_name=='--beamstop'):
 		if set_conf != 'None':
 			params[ste_name.lstrip('--')] = "np.load(\'"+set_conf+"\')"
