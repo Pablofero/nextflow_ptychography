@@ -18,7 +18,11 @@ if(params.find{ it.key == "unwarp_workflow" }){
     include {unwarp_workflow} from "./nextflow_modules/unwarp/unwarp_workflow.nf"
     do_unwarp_workflow = true
 }
-
+do_make_data = false
+if(params.find{ it.key == "make_data" }){
+    include {make_data} from "./nextflow_modules/tools/make_data.nf"
+    do_make_data = true
+}
 do_adorym_workflow = false
 if(params.find{ it.key == "adorym_workflow" }){
     include {adorym_workflow} from "./nextflow_modules/adorym/adorym_workflow.nf"
@@ -36,13 +40,24 @@ workflow {
 
         datasets = unwarp_workflow(datasets, ref, warp) // call the unwarp subworkflow, were the unwarping matrix is calculated and used to unwarp the data
     }
-    // if do_split(){
-    //     datasets = split(datasets)
-    // }
-    if(do_adorym_workflow){
-       out =  adorym_workflow(datasets)
+    if (do_make_data){
+        make_data_out = make_data(datasets)
+            datasets = make_data_out.datasets_h5.transpose() // by explicitly saving the output of the process we make it appear in the dag visualization
+            beamstop = make_data_out.beamstop.first()
+            total_tiles_shape = make_data_out.total_tiles_shape
+            extra_vacuum_space = make_data_out.extra_vacuum_space
+            probe_size = make_data_out.probe_size.first()
+            debug_png = make_data_out.debug_png
+
+        if(do_adorym_workflow){
+            out =  adorym_workflow(datasets, beamstop, total_tiles_shape, extra_vacuum_space, probe_size, debug_png)
+        }
+    }else{
+        if (do_adorym_workflow){
+            println("\nno make_data specified so can't run adorym subworkflow!")
+        }
+        // if(do_make)  TODO add warning for do_rop_workflow
     }
-    // .toList()
 }
 
 include {render_dag} from "./nextflow_modules/tools/render_dag.nf"
