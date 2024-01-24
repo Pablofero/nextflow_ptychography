@@ -34,11 +34,11 @@ params = parser.parse_args()
 
 tiles_num =  len(params["positions"])
 
-total_tiles_shape = np.load(params["total_tiles_shape"])
+total_tiles_shape = (np.load(params["total_tiles_shape"])*1.2).astype(int)
 extra_vacuum_space =  np.load(params["extra_vacuum_space"])
 print("extra_vacuum_space=",extra_vacuum_space)
 clear_extend = params["clear_extend"]
-half_window_lenght =params["half_window_lenght"]*1.7#1*1.7#3#1.701#2*2
+half_window_lenght = params["half_window_lenght"]*1.7#1*1.7#3#1.701#2*2
 window_name =  "hann"# "boxcar"#  #from scipy.signal.windows.get_window (#https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.windows.get_window.html#scipy.signal.windows.get_window)
 
 base = np.zeros((tiles_num,*total_tiles_shape))#np.zeros((tiles_num,423,423))
@@ -56,18 +56,22 @@ vmin = np.inf # saving min/max for normalisations  (later plotting)
 vmax = np.NINF # saving min/max for normalisations  (later plotting)
 
 for i in range(tiles_num):
-    print('offset',i,np.load(params["tile_offset"][i]))
+    print('index=',i,"offset ",np.load(params["tile_offset"][i]))
     pos.append(np.flip(np.load(params["positions"][i])+np.load(params["tile_offset"][i])+extra_vacuum_space,axis=1))
     tile_data = np.array(Image.open(params["recon"][i]+"/delta_ds_1.tiff"))
+    tile_shape = np.load(params["tile_shape"][i])
     offsets[i] = pos[i].min(axis=0)-extra_vacuum_space#np.round(np.int64(np.load(sinc+"/tile_"+str(i)+"_offset.npy"))) #-param_extra_space_mult_scanStepSize//2))# calculate offset to position within the greater array
     print(f'offsets[{i}]',offsets[i])
     ##plt.scatter(pos[-1][:,0], pos[-1][:,1],s=1,marker='o') ### view positions
     offset_x = offsets[i][1]
     offset_y = offsets[i][0]
-    print('\toffset_x=',offset_x,'\toffset_x+tile_data.shape[0]=',offset_x+tile_data.shape[0],'\toffset_y=',offset_y,'\toffset_y+tile_data.shape[1]=',offset_y+tile_data.shape[1])
-    base[i][offset_x:offset_x+tile_data.shape[0],offset_y:offset_y+tile_data.shape[1]] = tile_data#position data within the greater array
-    vmin = np.min([vmin,np.nanmin(tile_data)]) # saving min/max for normalisations  (later plotting)
-    vmax = np.max([vmax,np.nanmax(tile_data)]) # saving min/max for normalisations  (later plotting)
+    print('\toffset_x=',offset_x,'\toffset_x+tile_shape[0]=',offset_x+tile_shape[0],'\toffset_y=',offset_y,'\toffset_y+tile_shape[1]=',offset_y+tile_shape[1])
+    print("shape of selection into base=",offset_x-offset_x+tile_shape[0],offset_y-offset_y+tile_shape[1])
+    print("tile_data.shape=",tile_data.shape)
+    print("base[i].shape=",base[i].shape)
+    base[i][offset_x:offset_x+tile_shape[0],offset_y:offset_y+tile_shape[1]] = tile_data[0:tile_shape[0],0:tile_shape[1]]#position data within the greater array
+    vmin = np.min([vmin,np.nanmin(tile_data[0:tile_shape[0],0:tile_shape[1]])]) # saving min/max for normalisations  (later plotting)
+    vmax = np.max([vmax,np.nanmax(tile_data[0:tile_shape[0],0:tile_shape[1]])]) # saving min/max for normalisations  (later plotting)
 
 for i in range(tiles_num):
     # We want to find the corners of the non-overlaping part of the data. We got the position that include overlap and we have _slice_no_overlap.npy that specifies in 2d, the np slice of the pos that corespond to that area.

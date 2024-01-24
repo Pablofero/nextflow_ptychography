@@ -5,11 +5,11 @@ nextflow.enable.dsl=2
 
 // extract the corresponding parameters from the params map (java terminology, equivalent to dictionary in python ) 
 include { toArgs1 } from "../tools/toArgs1.nf"
-moduleParams= new nextflow.script.ScriptBinding$ParamsMap(params.adorym_workflow.adorym_reconstruct) // "navigate"/"select" the right section in the Yaml
+moduleParams= new nextflow.script.ScriptBinding$ParamsMap(params.join) // "navigate"/"select" the right section in the Yaml
 // argParams = new nextflow.script.ScriptBinding$ParamsMap(moduleParams.argParams)
 expandedParameters = toArgs1(moduleParams) // create a string with the parameters given in the yaml in teh format: --key "value"
 
-process adorym_join {
+process join {
         publishDir "$params.outputfolder/join/$workflow.runName", mode: 'copy' // location to save the outputs, copying as the default is to symbolically link!
         input:
             // tuple path(recon), path(datasets_h5) , path(probe_positions),  path(tile_shape), path(tile_offset), path(slice_no_overlap),path(tile_no_overlab_sub_shape) 
@@ -38,7 +38,7 @@ process adorym_join {
 
         script: //default Bash, see https://www.nextflow.io/docs/latest/process.html#script
             """
-            python $projectDir/bin/adorym/adorym_join.py  --recon $recon --positions $positions --tile_shape $tile_shape --tile_offset $tile_offset --slice_no_overlap $slice_no_overlap --tile_no_overlab_sub_shape $tile_no_overlab_sub_shape --total_tiles_shape $total_tiles_shape --extra_vacuum_space $extra_vacuum_space
+            python $projectDir/bin/mytools/join.py --recon $recon --positions $positions --tile_shape $tile_shape --tile_offset $tile_offset --slice_no_overlap $slice_no_overlap --tile_no_overlab_sub_shape $tile_no_overlab_sub_shape --total_tiles_shape $total_tiles_shape --extra_vacuum_space $extra_vacuum_space $expandedParameters
             """
     }
 

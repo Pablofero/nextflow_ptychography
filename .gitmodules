@@ -1,0 +1,3 @@
+[submodule "/testpool/ops/pablofernandezrobledo/Workflows/nextflow_ptychography/bin/rop/rop"]
+	path = /testpool/ops/pablofernandezrobledo/Workflows/nextflow_ptychography/bin/rop/rop
+	url = https://gitlab.com/Schlozma/rop.git

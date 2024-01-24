@@ -13,7 +13,7 @@ from jsonargparse.typing import path_type
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
-from mytools import im_tools
+from mytools import im_tools, ides_tools
 
 Path_nocheck = path_type('rw', docstring='str pointing to a folder', skip_check=True)# for directories
 Path_f_nocheck =  path_type('frw', docstring='str pointing to a file', skip_check=True) # for files
@@ -41,10 +41,12 @@ parser.add_argument("--extra_vacuum_space", type=int, help="How much vacuum shou
 parser.add_argument("--split_in_subarray", type=int, nargs=2,help="how many tiles in the n rows x m colums, (n, m).", default=[1,1])
 parser.add_argument("--overlap",type=int, help="Specifies overlap between subarrays, overlap is in positions.", default=0)
 parser.add_argument("--probe_size", type=int, nargs=2,help="Size of the electron probe", default=[-1,-1])
+parser.add_argument("--voltage", type=float,help="Microscope Voltage in keV", default=60)
+parser.add_argument("--alpha_max", type=float,help="Convergence angle in mrad", default=25)
 
 params = parser.parse_args()
 
-#4d-dataset
+# 4d-dataset
 path = Path(str(params['Path_2_Unwarped']));path.is_file()
 values = np.load(path) # has shape [probe_pos_x, probe_pos_y, dimension_r, dimension_c]
 if params['transpose_data']:
@@ -230,6 +232,7 @@ N_scan_y=params['scan_pos_list'][1]
 scan_step_size_x_m=params['scan_Step_Size_x_A'] * 1e-10 
 scan_step_size_y_m=params['scan_Step_Size_x_A'] * 1e-10
 px_size_m = params['px_size_ang_m']
+np.save('pixel_size.npy', px_size_m)
 rot_ang = np.pi/180*params['rot_ang_deg']
 param_extra_vacuum_space  = params['extra_vacuum_space']
 scanStepSize_arr = np.array([scan_step_size_x_m,scan_step_size_y_m])/px_size_m
@@ -289,7 +292,10 @@ values =  np.reshape(values,(1,values.shape[0]*values.shape[1],dimension_r,dimen
 # values *= 214183.488
 
 
+# calculate com shit corresponding to average diffraction pattern, then apply to every diffraction pattern in parallel
 _, shifts = im_tools.shift_im_com(im_tools.bin_image(np.mean(values, axis=(0,1)), binFactor), thresh=1)
+
+np.savetxt("com_shift.txt",shifts)
 
 values_new = np.zeros((1, Scan_pos, int(dimension_r/binFactor), int(dimension_c/binFactor))) #TODO don't need to "reserve" the memory, right now used only as template (assumes OS is smart and doesn't actually reserve that memory)
 
@@ -354,4 +360,28 @@ else:
 np.save('probe_size.npy', probe_size)
 
 split_flatten_save_probe_pos(xy_rot.T, split_in_subarray_num,overlap , params['scan_pos_list'], out_name, probe_offset = probe_size/2, scanStepSize=scanStepSize_arr,  param_extra_vacuum_space = param_extra_vacuum_space)# arr, nm,original_2d_shape, name,safe_HDF5=False,scanStepSize=None
+
+
+# np.sqrt(dat)
+# wavefront = np.mean(np.abs(dat), axis=(0, 1))
+
+
+## generate probe and apply phase shift coreponding to com shift
+N = np.max(probe_size)
+probe_generated = ides_tools.generate_probe(dx=px_size_m*10**10, N=N, voltage=params["voltage"], alpha_max=params["alpha_max"], df=0,C3=0,C5=0,C7=0)#TODO pass more parameters # dx is in angstroms
+plt.imsave("probe_generated_NO_SHIFT_angle.png",np.angle(probe_generated),cmap="gray")
+plt.imsave("probe_generated_NO_SHIFT_abs.png",np.abs(probe_generated),cmap="gray")
+
+kx = np.linspace(-np.floor(N/2), np.ceil(N/2)-1,N)
+# kx = np.fft.fftfreq(N, 1/N)
+[kX,kY] = np.meshgrid(kx,kx)
+shifftx, shiffty = shifts
+# add ramp in the fase to compensate for shift of COM
+probe_generated = probe_generated*np.exp(-1j/N*(shifftx*kX+shiffty*kY))# 1/N is coused by np fft normalization
+plt.imsave("probe_generated_real.png",np.real(probe_generated),cmap="gray")
+plt.imsave("probe_generated_imag.png",np.imag(probe_generated),cmap="gray")
+plt.imsave("probe_generated_abs.png",np.abs(probe_generated),cmap="gray")
+plt.imsave("probe_generated_angle.png",np.angle(probe_generated),cmap="gray")
+np.save("probe_generated.npy",probe_generated)
+
 print('Done!')

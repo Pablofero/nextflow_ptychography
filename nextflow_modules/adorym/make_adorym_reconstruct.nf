@@ -29,7 +29,6 @@ process make_adorym_reconstruct {
             path "probe_size.npy" , includeInputs: true , emit: probe_size
             path "adorym_recostruct.py" , emit: py_executable
         script: //default Bash, see https://www.nextflow.io/docs/latest/process.html#script
-            println "$datasets_h5"
             """
             python $projectDir/bin/adorym/make_adorym_reconstruct.py --fname $datasets_h5 --probe_pos $probe_positions --probe_size $probe_size --shape $shape --output_folder recon_`basename $shape _shape_pixels.npy` $expandedParameters --beamstop $beamstop  # beamstop explanation, if '/None' is passed  do nothing else add the argument --beamstop $beamstop
             """

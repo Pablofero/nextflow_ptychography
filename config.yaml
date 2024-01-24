@@ -121,7 +121,7 @@ adorym_workflow:
     # learning_rate : 4e-05
     learning_rate : 4e-05
     center : 0
-    energy_ev : 254811.087
+    energy_ev : 254811.087 #60keV (eV)
     psize_cm : 1.009e-09
     minibatch_size : 1400 #75**2 # 1000 # 10Gb #2000 brakes for  [200,200]
     n_batch_per_update : 1

@@ -2,73 +2,65 @@
 //use the newer version of nextflow (subworflows,etc see https://www.nextflow.io/docs/latest/dsl2.html) do not put comments after the dls=2 line!!
 nextflow.enable.dsl=2
 
+include {rop_compile} from "./rop_compile.nf"
+include {data_adorym_to_rop} from "./data_adorym_to_rop.nf" 
 // conditionally include modules
-params.rop_workflow.do_make_adorym_data = false
-if(params.rop_workflow.find{ it.key == "make_adorym_data" }){ // Todo detect if its a dic or only has one element, if one element->name of file in params.datafolder?
-    include {make_adorym_data} from "./make_adorym_data.nf" 
-    params.rop_workflow.do_make_adorym_data = true
+params.rop_workflow.do_make_rop_reconstruct = false
+if(params.rop_workflow.find{ it.key == "make_rop_reconstruct" }){
+    include {make_rop_reconstruct} from "./make_rop_reconstruct.nf" 
+    params.rop_workflow.do_make_rop_reconstruct = true
+    
+    if(params.rop_workflow.find{ it.key == "rop_reconstruct" }){ 
+        include {rop_reconstruct} from "./rop_reconstruct.nf" 
+        include {recon_rop_to_adorym} from "./recon_rop_to_adorym.nf" 
+        params.rop_workflow.do_rop_reconstruct = true
+    }
+
 }
 
 workflow rop_workflow {
         take://inputs to the (sub)workflow
             datasets
+            probe_size
+            pixel_size
+            debug_png
+            probe_generated
+            sourcecode
         main:
-            if(params.rop_workflow.do_make_adorym_data){
-                make_adorym_data = make_adorym_data(datasets)
+            
+            ROP = rop_compile(sourcecode)
 
-                        datasets = make_adorym_data.datasets_h5.transpose() // by explicitly saving the output of the process we make it appear in the dag visualization
-                        beamstop = make_adorym_data.beamstop.first()
-                        total_tiles_shape = make_adorym_data.total_tiles_shape
-                        extra_vacuum_space = make_adorym_data.extra_vacuum_space
-                        probe_size = make_adorym_data.probe_size.first()
-                        debug_png = make_adorym_data.debug_png
-                        // probe_positions = make_adorym_data.pos
-                        // shape = make_adorym_data.shape
+            datasets = data_adorym_to_rop(datasets,probe_size)
 
-            }else{
-                make_adorym_data=datasets
-                beamstop = '/None' //Todo
-                probe_positions = '/None'
+            if(params.rop_workflow.do_make_rop_reconstruct){    
+               
+               make_rop_reconstruct_out = make_rop_reconstruct(datasets,probe_generated,probe_size,pixel_size)
+                        datasets = make_rop_reconstruct_out.datasets_bin.transpose()
+               
+               if (rop_reconstruct){
+
+                    datasets_bin = rop_reconstruct(datasets,ROP).datasets_bin
+                    datasets = recon_rop_to_adorym(datasets_bin,probe_size)
+
+               }              
             }
-            // if(params.rop_workflow.do_make_adorym_positions){    
-            //     beam_pos = make_adorym_positions().pos
+            // if(params.rop_workflow.do_rop_reconstruct){
+            //     rop_reconstruct =  rop_reconstruct(datasets, beamstop_mar, py_executable)
+            //             datasets = rop_reconstruct.datasets_h5 // make_rop_reconstruct.datasets_h5.transpose() 
             // }else{
-            //     beam_pos = null // possibly read in?
+            //     rop_out_possibly_multiples=null
+            // }
+            
+            // if(params.rop_workflow.do_rop_join){
+            //     rop_out = rop_join(datasets.collect{it[0]}, datasets.collect{it[2]}, datasets.collect{it[3]}, datasets.collect{it[4]}, datasets.collect{it[5]}, datasets.collect{it[6]},total_tiles_shape,extra_vacuum_space) //0 -> recon, 2->probe_positions, 3->tile_shape, 4->tile_offset, 5->slice_no_overlap, 6->tile_no_overlab_sub_shape
+            //             // beta = rop_out.beta
+            //             // delta = rop_out.delta
+            //             // probes_mag = rop_out.probe_mag
+            //             // probes_phase = rop_out.probe_phase
+            // }else{
+            //     //rop_out=rop_no_join(rop_recon)
             // }
 
-            if(params.rop_workflow.do_make_adorym_reconstruct){    
-                // make_adorym_reconstruct = make_adorym_reconstruct(datasets,beam_pos,beamstop)
-                make_adorym_reconstruct = make_adorym_reconstruct(datasets,beamstop,probe_size)
- 
-                        datasets = make_adorym_reconstruct.datasets_h5.transpose() // by explicitly saving the output of the process we make it appear in the dag visualization
-                        beamstop_mar = make_adorym_reconstruct.beamstop.first() //params.rop_workflow.do_make_adorym_data ? make_adorym_reconstruct.beamstop : '/None'
-                        probe_size_mar = make_adorym_data.probe_size.first()
-                        // print(params.rop_workflow.do_make_adorym_data ?' make_adorym_reconstruct.beamstop' : '/None')
-                        py_executable = make_adorym_reconstruct.py_executable
-                    
-            }else{
-                datasets = null 
-                beamstop = null 
-                py_executable = null 
-            }
-
-            if(params.rop_workflow.do_adorym_reconstruct){
-                adorym_reconstruct =  adorym_reconstruct(datasets, beamstop_mar, py_executable)
-                        datasets = adorym_reconstruct.datasets_h5 // make_adorym_reconstruct.datasets_h5.transpose() 
-            }else{
-                adorym_out_possibly_multiples=null
-            }
-            
-            if(params.rop_workflow.do_adorym_join){
-                adorym_out = adorym_join(datasets.collect{it[0]}, datasets.collect{it[2]}, datasets.collect{it[3]}, datasets.collect{it[4]}, datasets.collect{it[5]}, datasets.collect{it[6]},total_tiles_shape,extra_vacuum_space) //0 -> recon, 2->probe_positions, 3->tile_shape, 4->tile_offset, 5->slice_no_overlap, 6->tile_no_overlab_sub_shape
-                        // beta = adorym_out.beta
-                        // delta = adorym_out.delta
-                        // probes_mag = adorym_out.probe_mag
-                        // probes_phase = adorym_out.probe_phase
-            }else{
-                //adorym_out=adorym_no_join(adorym_recon)
-            }
-
-        //  emit: //output of the (sub)workflow
-        //     adorym_out
+         emit: //output of the (sub)workflow
+            datasets
     }

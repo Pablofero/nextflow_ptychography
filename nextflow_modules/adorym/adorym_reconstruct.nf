@@ -21,7 +21,7 @@ process adorym_reconstruct {
         output: // for understanding path: https://www.nextflow.io/docs/latest/process.html?#output-path
                 // emit: define a name identifier that can be used to reference the channel in the external scope, see also https://www.nextflow.io/docs/latest/dsl2.html?highlight=emit#process-named-output
              path "*", emit: adorym_out
-             tuple path("recon*", includeInputs: true), path("*.h5", includeInputs: true), path("beam_pos_*.npy", includeInputs: true),  path("tile_*_shape_pixels.npy", includeInputs: true), path("tile_*_offset.npy", includeInputs: true), path("tile_*_slice_no_overlap.npy", includeInputs: true), path("tile_*_pos_shape.npy", includeInputs: true), emit: datasets_h5
+             tuple path("recon*", includeInputs: true), path("beam_pos_*.npy", includeInputs: true),  path("tile_*_shape_pixels.npy", includeInputs: true), path("tile_*_offset.npy", includeInputs: true), path("tile_*_slice_no_overlap.npy", includeInputs: true), path("tile_*_pos_shape.npy", includeInputs: true), emit: datasets_h5
         // echo true // output standart out to terminal
 
         script: //default Bash, see https://www.nextflow.io/docs/latest/process.html#script
@@ -29,4 +29,3 @@ process adorym_reconstruct {
             python $py_executable
             """
     }
-    // /opt/anaconda3/envs/tompekin-basic/bin/

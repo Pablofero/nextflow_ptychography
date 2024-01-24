@@ -14,5 +14,6 @@ __pycache__/
 /adorym_new_fft/**
 /adorym_main/**
 python_base
+
 **/depr_*
 config_*.yaml
