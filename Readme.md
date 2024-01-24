@@ -1,5 +1,8 @@
 ## Nextflow Preprocessing
 ___
+### To clone:
+```git clone --recurse-submodules https://github.com/Pablofero/nextflow_ptychography.git```
+___
 ### To run:
 ```
 nextflow run main.nf -resume -params-file config.yaml -name run1 --outputfolder output1 
